@@ -17,12 +17,12 @@ def detect_ros_version():
             "Unsupported or unknown ROS distribution. Ensure you've sourced the appropriate setup.bash file.")
 
 detect_ros_version()
-
+print(ros_version)
 # Dynamischer Import der richtigen Schnittstelle
 if ros_version == 'ros1':
-    from .ros1_interface import init_node, create_publisher, create_subscriber, spin
+    from .ros1_interface import init_node, create_publisher, create_subscriber, set_param, get_param, spin
 elif ros_version == 'ros2':
-    from .ros2_interface import init_node, create_publisher, create_subscriber, spin
+    from .ros2_interface import init_node, create_publisher, create_subscriber, set_param, get_param, spin
 
 def ros_version():
     return ros_version

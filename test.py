@@ -7,16 +7,10 @@ def callback(msg):
 
 
 def main():
-    ros.init_node('my_node')
+    ros.init_node('receiver', False, True)
 
-    publisher = ros.create_publisher('chatter', String)
-    ros.create_subscriber('chatter', String, callback)
-
-
-    while True:
-        msg = String()
-        msg.data = 'Hello World'
-        publisher.publish(msg)
+    #publisher = ros.create_publisher('chatter', String)
+    ros.create_subscriber('TEST', String, callback)
 
 
 if __name__ == '__main__':
