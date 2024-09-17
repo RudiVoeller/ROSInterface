@@ -1,7 +1,7 @@
 import os
 
 # Globale Variable zur Speicherung des erkannten ROS-Systems
-ros_version = None
+global ros_version
 
 
 def detect_ros_version():
@@ -16,13 +16,17 @@ def detect_ros_version():
         raise RuntimeError(
             "Unsupported or unknown ROS distribution. Ensure you've sourced the appropriate setup.bash file.")
 
+
 detect_ros_version()
 print(ros_version)
 # Dynamischer Import der richtigen Schnittstelle
 if ros_version == 'ros1':
-    from .ros1_interface import init_node, create_publisher, create_subscriber, set_param, get_param, spin
+    from .ros1_interface import init_node, create_publisher, create_subscriber, set_param, get_param, spin, \
+        create_service, call_service, get_all_nodes, get_all_services, subscription_count_per_topic, get_all_topics
 elif ros_version == 'ros2':
-    from .ros2_interface import init_node, create_publisher, create_subscriber, set_param, get_param, spin
+    from .ros2_interface import init_node, create_publisher, create_subscriber, set_param, get_param, spin, \
+        create_service, call_service, get_all_nodes, get_all_services, subscription_count_per_topic, get_all_topics
+
 
 def ros_version():
     return ros_version

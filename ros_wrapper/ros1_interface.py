@@ -1,10 +1,13 @@
 import rospy
+import rosnode
 import rosgraph
+import rosservice
 import subprocess
 import time
+import xmlrpc.client
 from std_msgs.msg import String
 
-
+#Available in ROS 2????
 def set_shutdown_hook(shutdown_hook):
     rospy.on_shutdown(shutdown_hook)
 
@@ -15,21 +18,109 @@ def init_node(name, anonymous=False, log_level=rospy.INFO, verbose=False):
     rospy.init_node(name, anonymous=anonymous, log_level=log_level)
 
 def get_param(param_name, default=None):
+    if not is_node_initialized():
+        print("ROS1: ERROR: First init a node")
+        return None
     return rospy.get_param(param_name, default)
 
 def set_param(param_name, value):
+    if not is_node_initialized():
+        print("ROS1: ERROR: First init a node")
+        return None
     rospy.set_param(param_name, value)
+
+def delete_param(param_name):
+    if not is_node_initialized():
+        print("ROS1: ERROR: First init a node")
+        return None
+    rospy.delete_params(param_name)
+
+def subscription_count_per_topic(topic_name, data_class):
+    if not is_node_initialized():
+        print("ROS1: ERROR: First init a node")
+        return None
+    master = xmlrpc.client.ServerProxy(rospy.get_master().getUri())
+    code, message, topic_list = master.getSystemState()
+
+    subscriber_count = 0
+    for entry in topic_list[1]:  # Der zweite Eintrag enthält die Subscriber
+        if entry[0] == topic_name:
+            subscriber_count = len(entry[1])  # Subscriber zählen
+            return subscriber_count
+    return 0
+
+def publisher_count_per_topic(topic_name):
+    if not is_node_initialized():
+        print("ROS1: ERROR: First init a node")
+        return None
+
+    # Master-Proxy erstellen
+    master = xmlrpc.client.ServerProxy(rospy.get_master().getUri())
+
+    # Topic, für das du die Publisher ermitteln willst
+    topic_name = "/dein_topic"
+
+    # Informationen zu dem Topic vom Master abrufen
+    code, message, topic_list = master.getSystemState()
+
+    # Topic-Liste durchgehen und nach dem entsprechenden Topic suchen
+    publisher_count = 0
+    for entry in topic_list[0]:  # Der erste Eintrag enthält die Publisher
+        if entry[0] == topic_name:
+            publisher_count = len(entry[1])
+            return publisher_count
+            break
 
 
 def create_publisher(topic, msg_type, queue_size=10, latch=False, tcp_nodelay=False):
-    print("ROS 1: Create Publisher")
+    if not is_node_initialized():
+        print("ROS1: ERROR: First init a node")
+        return None
     return rospy.Publisher(topic, msg_type, queue_size=queue_size, latch=latch, tcp_nodelay=tcp_nodelay)
 
 def create_subscriber(topic, msg_type, callback):
-    print("ROS 1: Create Subscriber")
+    if not is_node_initialized():
+        print("ROS1: ERROR: First init a node")
+        return None
     return rospy.Subscriber(topic, msg_type, callback)
 
+def create_service(name,service_class, handler):
+    if not is_node_initialized():
+        print("ROS1: ERROR: First init a node")
+        return None
+    return rospy.Service(name, service_class, handler)
+
+
+def call_service(service_name, service_type, *args):
+    if not is_node_initialized():
+        print("ROS1: ERROR: First init a node")
+        return None
+    rospy.wait_for_service(service_name)
+    try:
+        # Service-Proxy erstellen
+        service_proxy = rospy.ServiceProxy(service_name, service_type)
+
+        # Service aufrufen mit den Argumenten
+        response = service_proxy(*args)
+        return response
+    except rospy.ServiceException as e:
+        print(f"Service call dont work: {e}")
+
+
+def get_all_nodes():
+    return rosnode.get_node_names()
+
+def get_all_services():
+    return rosservice.get_service_list()
+
+
+def get_all_topics():
+    return rospy.get_published_topics()
+
 def spin():
+    if not is_node_initialized():
+        print("ROS1: ERROR: First init a node")
+        return None
     rospy.spin()
 
 def start_roscore():
@@ -45,3 +136,10 @@ def start_roscore():
             time.sleep(5)  # Kurz warten, damit der Master vollständig gestartet ist
     except Exception as e:
         print(f"Failed to start roscore: {e}")
+
+def is_node_initialized():
+    try:
+        rospy.get_node_uri()  # Prüft, ob der Node bereits initialisiert wurde
+        return True
+    except rospy.exceptions.ROSException:
+        return False

@@ -11,6 +11,7 @@ def main():
 
     #publisher = ros.create_publisher('chatter', String)
     ros.create_subscriber('TEST', String, callback)
+    ros.create_service('test2', String, callback)
 
 
 if __name__ == '__main__':
