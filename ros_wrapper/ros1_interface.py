@@ -5,7 +5,10 @@ import rosservice
 import subprocess
 import time
 import xmlrpc.client
+
+from .ros1_action_client import ROS1ActionClient
 from .ros1_action_server import ROS1ActionServer
+from .unified_action_client import UnifiedActionClient
 from .unified_action_server import UnifiedActionServer
 from .unified_publisher import UnifiedPublisher
 
@@ -14,6 +17,10 @@ def create_action_server(action_name, action_type, execute_cb):
     server = ROS1ActionServer(action_name, action_type, execute_cb)
     rospy.loginfo(f"Action-Server '{action_name}' in ROS 1 gestartet.")
     return UnifiedActionServer(server)
+
+def create_action_client(action_name, action_type):
+    client = ROS1ActionClient(action_name, action_type)
+    return UnifiedActionClient(client)
 
 #Available in ROS 2????
 def set_shutdown_hook(shutdown_hook):

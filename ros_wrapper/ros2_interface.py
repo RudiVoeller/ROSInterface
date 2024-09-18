@@ -3,7 +3,9 @@ import asyncio
 import rclpy
 from rclpy.node import Node
 
+from ros_wrapper.ros2_action_client import ROS2ActionClient
 from ros_wrapper.ros2_action_server import ROS2ActionServer
+from ros_wrapper.unified_action_client import UnifiedActionClient
 from ros_wrapper.unified_action_server import UnifiedActionServer
 from ros_wrapper.unified_publisher import UnifiedPublisher
 
@@ -18,6 +20,13 @@ def create_action_server(action_name, action_type, execute_cb):
     server = ROS2ActionServer(node, action_name, action_type, execute_cb)
     return UnifiedActionServer(server)
 
+def create_action_client(action_name, action_type):
+    if not node:
+        print("ROS2: ERROR: First init a node")
+        return None
+
+    client = ROS2ActionClient(node, action_name, action_type)
+    return UnifiedActionClient(client)
 
 def set_param(name, value):
     if node:
