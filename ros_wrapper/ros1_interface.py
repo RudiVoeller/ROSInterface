@@ -5,7 +5,15 @@ import rosservice
 import subprocess
 import time
 import xmlrpc.client
-from std_msgs.msg import String
+from .ros1_action_server import ROS1ActionServer
+from .unified_action_server import UnifiedActionServer
+from .unified_publisher import UnifiedPublisher
+
+
+def create_action_server(action_name, action_type, execute_cb):
+    server = ROS1ActionServer(action_name, action_type, execute_cb)
+    rospy.loginfo(f"Action-Server '{action_name}' in ROS 1 gestartet.")
+    return UnifiedActionServer(server)
 
 #Available in ROS 2????
 def set_shutdown_hook(shutdown_hook):
@@ -76,7 +84,8 @@ def create_publisher(topic, msg_type, queue_size=10, latch=False, tcp_nodelay=Fa
     if not is_node_initialized():
         print("ROS1: ERROR: First init a node")
         return None
-    return rospy.Publisher(topic, msg_type, queue_size=queue_size, latch=latch, tcp_nodelay=tcp_nodelay)
+    publisher = rospy.Publisher(topic, msg_type, queue_size=queue_size, latch=latch, tcp_nodelay=tcp_nodelay)
+    return UnifiedPublisher(publisher)
 
 def create_subscriber(topic, msg_type, callback):
     if not is_node_initialized():

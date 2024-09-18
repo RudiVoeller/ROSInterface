@@ -1,13 +1,22 @@
+import asyncio
+
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
 
-def init_node(name, anonymous=True, verbose=False, enable_rosout=True):
-    if verbose:
-        print("ROS2: Init Node")
-    rclpy.init()
-    global node
-    node = Node(name, enable_rosout=enable_rosout)
+from ros_wrapper.ros2_action_server import ROS2ActionServer
+from ros_wrapper.unified_action_server import UnifiedActionServer
+from ros_wrapper.unified_publisher import UnifiedPublisher
+
+global node
+global action_server
+
+def create_action_server(action_name, action_type, execute_cb):
+    if not node:
+        print("ROS2: ERROR: First init a node")
+        return None
+
+    server = ROS2ActionServer(node, action_name, action_type, execute_cb)
+    return UnifiedActionServer(server)
 
 
 def set_param(name, value):
@@ -28,7 +37,8 @@ def publisher_count_per_topic(topic_name):
 def create_publisher(topic, msg_type, queue_size=10):
     print("ROS2: Creating Publisher")
     if node:
-        return node.create_publisher(msg_type, topic, queue_size)
+        publisher = node.create_publisher(msg_type, topic, queue_size)
+        return UnifiedPublisher(publisher)
     else:
         print("ROS2: ERROR: First init a node")
 
