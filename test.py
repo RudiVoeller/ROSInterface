@@ -1,19 +1,22 @@
 import ros_wrapper as ros
 from std_msgs.msg import String
+import unittest
+import time
 
-
-def callback(msg):
-    print(f"Received: {msg.data}")
-
-
-def main():
-    ros.init_node('receiver', False, True)
-
-    #publisher = ros.create_publisher('chatter', String)
-    ros.create_subscriber('TEST', String, callback)
-    ros.create_service('test2', String, callback)
 
 
 if __name__ == '__main__':
-    main()
+    ros.init_node("test")
+    publisher = ros.create_publisher('test_topic', String)
+    print(ros.subscription_count_per_topic('test_topic'))
+
+    try:
+        while True:
+            publisher.publish(String(data="Hello World"))
+            time.sleep(1)  # Warte 1 Sekunde
+            print(ros.subscription_count_per_topic('test_topic'))
+    except KeyboardInterrupt:
+        pass
     ros.spin()
+
+    #unittest.main()

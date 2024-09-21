@@ -6,11 +6,14 @@ import subprocess
 import time
 import xmlrpc.client
 
-from .ros1_action_client import ROS1ActionClient
-from .ros1_action_server import ROS1ActionServer
-from .unified_action_client import UnifiedActionClient
-from .unified_action_server import UnifiedActionServer
-from .unified_publisher import UnifiedPublisher
+from .param.unified_param import UnifiedParameter
+from ros_wrapper.action_client.ros1_action_client import ROS1ActionClient
+from ros_wrapper.action_server.ros1_action_server import ROS1ActionServer
+from .subscription.ros1_subscription import ROS1Subscription
+from .subscription.unified_subscription import UnifiedSubscription
+from ros_wrapper.action_client.unified_action_client import UnifiedActionClient
+from ros_wrapper.action_server.unified_action_server import UnifiedActionServer
+from ros_wrapper.publisher.unified_publisher import UnifiedPublisher
 
 
 def create_action_server(action_name, action_type, execute_cb):
@@ -26,17 +29,16 @@ def create_action_client(action_name, action_type):
 def set_shutdown_hook(shutdown_hook):
     rospy.on_shutdown(shutdown_hook)
 
-def init_node(name, anonymous=False, log_level=rospy.INFO, verbose=False):
-    if verbose:
-        print("ROS 1: Init Node")
+def init_node(name, anonymous=False):
     start_roscore()
-    rospy.init_node(name, anonymous=anonymous, log_level=log_level)
+    rospy.init_node(name, anonymous=anonymous)
 
 def get_param(param_name, default=None):
     if not is_node_initialized():
         print("ROS1: ERROR: First init a node")
         return None
-    return rospy.get_param(param_name, default)
+    value = rospy.get_param(param_name, default)
+    return UnifiedParameter(value)
 
 def set_param(param_name, value):
     if not is_node_initialized():
@@ -98,7 +100,8 @@ def create_subscriber(topic, msg_type, callback):
     if not is_node_initialized():
         print("ROS1: ERROR: First init a node")
         return None
-    return rospy.Subscriber(topic, msg_type, callback)
+    subscription = ROS1Subscription(topic, msg_type, callback)
+    return UnifiedSubscription(subscription)
 
 def create_service(name,service_class, handler):
     if not is_node_initialized():

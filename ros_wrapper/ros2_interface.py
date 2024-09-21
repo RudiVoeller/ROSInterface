@@ -1,16 +1,24 @@
-import asyncio
 
 import rclpy
 from rclpy.node import Node
 
-from ros_wrapper.ros2_action_client import ROS2ActionClient
-from ros_wrapper.ros2_action_server import ROS2ActionServer
-from ros_wrapper.unified_action_client import UnifiedActionClient
-from ros_wrapper.unified_action_server import UnifiedActionServer
-from ros_wrapper.unified_publisher import UnifiedPublisher
+from ros_wrapper.param.unified_param import UnifiedParameter
+from ros_wrapper.action_client.ros2_action_client import ROS2ActionClient
+from ros_wrapper.action_server.ros2_action_server import ROS2ActionServer
+from ros_wrapper.subscription.ros2_subscription import ROS2Subscription
+from ros_wrapper.subscription.unified_subscription import UnifiedSubscription
+from ros_wrapper.action_client.unified_action_client import UnifiedActionClient
+from ros_wrapper.action_server.unified_action_server import UnifiedActionServer
+from ros_wrapper.publisher.unified_publisher import UnifiedPublisher
 
-global node
-global action_server
+node = None
+action_server = None
+
+def init_node(node_name, anonymous=False):
+    rclpy.init()
+    global node
+    node = Node(node_name)
+
 
 def create_action_server(action_name, action_type, execute_cb):
     if not node:
@@ -35,17 +43,26 @@ def set_param(name, value):
         print("ROS2: ERROR: First init a node")
 
 def get_param(param_name, default = None):
-    return node.get_parameter_or(param_name, default)
-
+    if not node:
+        print("ROS2: ERROR: First init a node")
+        return None
+    value = node.get_parameter_or(param_name, default)
+    return UnifiedParameter(value)
 def subscription_count_per_topic(topic_name):
+    if not node:
+        print("ROS2: ERROR: First init a node")
+        return None
     return node.count_subscribers(topic_name)
 
 def publisher_count_per_topic(topic_name):
+    if not node:
+        print("ROS2: ERROR: First init a node")
+        return None
     return node.count_publishers(topic_name)
 
 def create_publisher(topic, msg_type, queue_size=10):
     print("ROS2: Creating Publisher")
-    if node:
+    if node is not None:
         publisher = node.create_publisher(msg_type, topic, queue_size)
         return UnifiedPublisher(publisher)
     else:
@@ -55,7 +72,8 @@ def create_publisher(topic, msg_type, queue_size=10):
 def create_subscriber(topic, msg_type, callback):
     print("ROS2: Creating Subscriber")
     if node:
-        node.create_subscription(msg_type, topic, callback, 10)
+        subscription = ROS2Subscription(node, topic, msg_type, callback)
+        return UnifiedSubscription(subscription)
     else:
         print("ROS2: ERROR: First init a node")
 
