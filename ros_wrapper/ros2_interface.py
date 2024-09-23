@@ -5,6 +5,7 @@ from rclpy.node import Node
 from ros_wrapper.param.unified_param import UnifiedParameter
 from ros_wrapper.action_client.ros2_action_client import ROS2ActionClient
 from ros_wrapper.action_server.ros2_action_server import ROS2ActionServer
+from ros_wrapper.publisher.ros2_publisher import ROS2Publisher
 from ros_wrapper.subscription.ros2_subscription import ROS2Subscription
 from ros_wrapper.subscription.unified_subscription import UnifiedSubscription
 from ros_wrapper.action_client.unified_action_client import UnifiedActionClient
@@ -60,10 +61,10 @@ def publisher_count_per_topic(topic_name):
         return None
     return node.count_publishers(topic_name)
 
-def create_publisher(topic, msg_type, queue_size=10):
+def create_publisher(topic, msg_type):
     print("ROS2: Creating Publisher")
     if node is not None:
-        publisher = node.create_publisher(msg_type, topic, queue_size)
+        publisher = ROS2Publisher(node, topic, msg_type)
         return UnifiedPublisher(publisher)
     else:
         print("ROS2: ERROR: First init a node")

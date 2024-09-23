@@ -9,6 +9,7 @@ import xmlrpc.client
 from .param.unified_param import UnifiedParameter
 from ros_wrapper.action_client.ros1_action_client import ROS1ActionClient
 from ros_wrapper.action_server.ros1_action_server import ROS1ActionServer
+from .publisher.ros1_publisher import ROS1Publisher
 from .subscription.ros1_subscription import ROS1Subscription
 from .subscription.unified_subscription import UnifiedSubscription
 from ros_wrapper.action_client.unified_action_client import UnifiedActionClient
@@ -52,48 +53,24 @@ def delete_param(param_name):
         return None
     rospy.delete_params(param_name)
 
-def subscription_count_per_topic(topic_name, data_class):
-    if not is_node_initialized():
-        print("ROS1: ERROR: First init a node")
-        return None
-    master = xmlrpc.client.ServerProxy(rospy.get_master().getUri())
-    code, message, topic_list = master.getSystemState()
-
-    subscriber_count = 0
-    for entry in topic_list[1]:  # Der zweite Eintrag enthält die Subscriber
-        if entry[0] == topic_name:
-            subscriber_count = len(entry[1])  # Subscriber zählen
-            return subscriber_count
-    return 0
-
-def publisher_count_per_topic(topic_name):
+def subscription_count_per_topic(topic_name): # currently not working
     if not is_node_initialized():
         print("ROS1: ERROR: First init a node")
         return None
 
-    # Master-Proxy erstellen
-    master = xmlrpc.client.ServerProxy(rospy.get_master().getUri())
+    # Maybe get over get_num_connections of Publisher, but then need the msg_type
 
-    # Topic, für das du die Publisher ermitteln willst
-    topic_name = "/dein_topic"
-
-    # Informationen zu dem Topic vom Master abrufen
-    code, message, topic_list = master.getSystemState()
-
-    # Topic-Liste durchgehen und nach dem entsprechenden Topic suchen
-    publisher_count = 0
-    for entry in topic_list[0]:  # Der erste Eintrag enthält die Publisher
-        if entry[0] == topic_name:
-            publisher_count = len(entry[1])
-            return publisher_count
-            break
-
-
-def create_publisher(topic, msg_type, queue_size=10, latch=False, tcp_nodelay=False):
+def publisher_count_per_topic(topic_name): # currently not working
     if not is_node_initialized():
         print("ROS1: ERROR: First init a node")
         return None
-    publisher = rospy.Publisher(topic, msg_type, queue_size=queue_size, latch=latch, tcp_nodelay=tcp_nodelay)
+# Maybe get over get_num_connections of Subscriber, but then need the msg_type
+
+def create_publisher(topic, msg_type):
+    if not is_node_initialized():
+        print("ROS1: ERROR: First init a node")
+        return None
+    publisher = ROS1Publisher(topic, msg_type)
     return UnifiedPublisher(publisher)
 
 def create_subscriber(topic, msg_type, callback):

@@ -4,3 +4,6 @@ class UnifiedPublisher:
 
     def publish(self, msg):
         self.publisher.publish(msg)
+
+    def unregister(self):
+        self.publisher.unregister()
