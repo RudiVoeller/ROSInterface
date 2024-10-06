@@ -3,7 +3,7 @@ import os
 # Globale Variable zur Speicherung des erkannten ROS-Systems
 global ros_version
 
-
+""" Detects if ROS1 or ROS2 is sourced/activated """
 def detect_ros_version():
     global ros_version
     ros_distro = os.getenv('ROS_DISTRO')
@@ -19,7 +19,7 @@ def detect_ros_version():
 
 detect_ros_version()
 print(ros_version)
-# Dynamischer Import der richtigen Schnittstelle
+# Dynamic import of the correct functions
 if ros_version == 'ros1':
     from .ros1_interface import init_node, create_publisher, create_subscriber, set_param, get_param, spin, \
         create_service, call_service, get_all_nodes, get_all_services, subscription_count_per_topic, publisher_count_per_topic, get_all_topics, create_action_client, create_action_server
