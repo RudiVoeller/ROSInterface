@@ -82,12 +82,11 @@ def get_param(param_name, default=None):
     value = rospy.get_param(param_name, default)
     return UnifiedParameter(value)
 
-#FIXME: Only in ROS 1
 def delete_param(param_name):
     if not is_node_initialized():
         print("ROS1: ERROR: First init a node")
         return None
-    rospy.delete_params(param_name)
+    rospy.delete_param(param_name)
 
 def subscription_count_per_topic(topic_name): # currently not working
     """

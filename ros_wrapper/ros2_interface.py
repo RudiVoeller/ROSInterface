@@ -81,7 +81,14 @@ def get_param(param_name, default = None):
         print("ROS2: ERROR: First init a node")
         return None
     value = node.get_parameter_or(param_name, default)
-    return UnifiedParameter(value)
+    return UnifiedParameter(value.value)
+
+
+def delete_param(param_name):
+    if not node:
+        print("ROS2: ERROR: First init a node")
+        return None
+    node.undeclare_parameter(param_name)
 
 def subscription_count_per_topic(topic_name):
     """
@@ -170,8 +177,11 @@ def call_service(service_name, service_type, *args):
         node.get_logger().info(f"Service '{service_name}' not available, waiting...")
 
     request = service_type.Request()
-    for arg, value in enumerate(args):
-        setattr(request, f'arg{arg}', value)
+    request_fields = [field for field in dir(request) if
+                      not field.startswith('_') and not callable(getattr(request, field))]
+
+    for field, value in zip(request_fields, args):
+        setattr(request, field, value)
 
     future = client.call_async(request)
     rclpy.spin_until_future_complete(node, future)
@@ -181,6 +191,8 @@ def call_service(service_name, service_type, *args):
     else:
         node.get_logger().error('Service call failed.')
         return None
+
+
 def get_all_nodes():
     """
        Gets all the reachable nodes in the network.

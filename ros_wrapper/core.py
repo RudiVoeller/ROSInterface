@@ -20,10 +20,10 @@ detect_ros_version()
 print(ros_version)
 """ Dynamic import of the correct functions """
 if ros_version == 'ros1':
-    from .ros1_interface import init_node, create_publisher, create_subscriber, set_param, get_param, spin, \
+    from .ros1_interface import init_node, create_publisher, create_subscriber, set_param, get_param, delete_param, spin, \
         create_service, call_service, get_all_nodes, get_all_services, subscription_count_per_topic, publisher_count_per_topic, get_all_topics, create_action_client, create_action_server
 elif ros_version == 'ros2':
-    from .ros2_interface import init_node, create_publisher, create_subscriber, set_param, get_param, spin, \
+    from .ros2_interface import init_node, create_publisher, create_subscriber, set_param, get_param, delete_param, spin, \
         create_service, call_service, get_all_nodes, get_all_services, subscription_count_per_topic, publisher_count_per_topic, get_all_topics, create_action_client, create_action_server
 
 """ Getter for the ros version """
