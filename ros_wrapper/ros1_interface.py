@@ -2,9 +2,11 @@ import rospy
 import rosnode
 import rosgraph
 import rosservice
+import rostopic
 import subprocess
 import time
-import xmlrpc.client
+
+from docutils.nodes import topic
 
 from .param.unified_param import UnifiedParameter
 from ros_wrapper.action_client.ros1_action_client import ROS1ActionClient
@@ -88,7 +90,7 @@ def delete_param(param_name):
         return None
     rospy.delete_param(param_name)
 
-def subscription_count_per_topic(topic_name): # currently not working
+def subscription_count_per_topic(topic_name):
     """
             Counts the amount of subscriptions for one topic.
 
@@ -99,6 +101,23 @@ def subscription_count_per_topic(topic_name): # currently not working
         print("ROS1: ERROR: First init a node")
         return None
 
+    if not topic_name.startswith('/'):
+        topic_name = '/' + topic_name
+    strlist = rostopic.get_topic_type(topic_name)
+   
+
+    try:
+        # Create a temporary publisher for the topic
+        print(rostopic.get_topic_type(topic_name))
+        temp_publisher = rospy.Publisher(topic_name, strlist[0], queue_size=10)
+        rospy.sleep(1)  # Give some time for connections to be established
+
+        # Get the number of connections (subscribers)
+        num_connections = temp_publisher.get_num_connections()
+        return num_connections
+    except Exception as e:
+        print(f"Failed to get subscription count for topic '{topic_name}': {e}")
+        return None
     # Maybe get over get_num_connections of Publisher, but then need the msg_type
 
 def publisher_count_per_topic(topic_name): # currently not working

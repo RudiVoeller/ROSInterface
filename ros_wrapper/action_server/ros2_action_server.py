@@ -1,4 +1,5 @@
 import rclpy
+import inspect
 from rclpy.action import ActionServer
 
 class ROS2ActionServer:
@@ -12,14 +13,27 @@ class ROS2ActionServer:
         """
         self.node = node
         self._user_callback = execute_callback  # Benutzerdefinierte execute_callback-Funktion
-        self.server = ActionServer(
-            node, action_type, action_name, execute_callback=self._execute_callback_wrapper
-        )
+
+        if  inspect.iscoroutinefunction(execute_callback) is not True:
+            self.server = ActionServer(
+                node, action_type, action_name, execute_callback=self._execute_callback_wrapper
+            )
+        else:
+            self.server = ActionServer(
+                node, action_type, action_name, execute_callback=self._execute_callback_wrapper_async
+            )
+
+
         self.node.get_logger().info(f"ROS 2 Action Server '{action_name}' gestartet.")
 
-    async def _execute_callback_wrapper(self, goal_handle):
+    def _execute_callback_wrapper(self, goal_handle):
         """Wrapper für die vom Benutzer bereitgestellte execute_callback."""
-        await self._user_callback(self, goal_handle)  # Aufruf der benutzerdefinierten Callback-Funktion
+        return self._user_callback(self, goal_handle)
+
+    async def _execute_callback_wrapper_async(self, goal_handle):
+        """Wrapper für die vom Benutzer bereitgestellte execute_callback."""
+        result = await self._user_callback(self, goal_handle)
+        return result
 
     def publish_feedback(self, goal_handle, feedback):
         """
