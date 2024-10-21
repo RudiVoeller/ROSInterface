@@ -174,11 +174,11 @@ def call_service(service_name, service_type, *args):
     client = node.create_client(service_type, service_name)
 
     while not client.wait_for_service(timeout_sec=1.0):
-        node.get_logger().info(f"Service '{service_name}' not available, waiting...")
+        print(f"Service '{service_name}' not available, waiting...")
 
     request = service_type.Request()
     request_fields = [field for field in dir(request) if
-                      not field.startswith('_') and not callable(getattr(request, field))]
+                      not field.startswith('_') and not field.startswith("SLOT_TYPES") and not callable(getattr(request, field))]
 
     for field, value in zip(request_fields, args):
         setattr(request, field, value)
@@ -189,7 +189,6 @@ def call_service(service_name, service_type, *args):
     if future.result() is not None:
         return future.result()
     else:
-        node.get_logger().error('Service call failed.')
         return None
 
 
