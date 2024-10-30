@@ -3,6 +3,7 @@ import rosnode
 import rosgraph
 import rosservice
 import rostopic
+import roslib
 import subprocess
 import time
 
@@ -105,22 +106,35 @@ def subscription_count_per_topic(topic_name):
 
     if not topic_name.startswith('/'):
         topic_name = '/' + topic_name
-    strlist = rostopic.get_topic_type(topic_name)
-   
-
     try:
+        strlist = rostopic.get_topic_type(topic_name)
+
+        if strlist is None or strlist[0] is None:
+            print(f"Failed to get subscription count for topic '{topic_name}': Topic not found")
+            return 0
+        package_name, message_name = strlist[0].split('/')
+
+        # Import the message module dynamically
+        roslib.load_manifest(package_name)
+        msg_module = __import__(f"{package_name}.msg", fromlist=[message_name])
+
+        # Get the message class
+        msg_class = getattr(msg_module, message_name)
+
+
         # Create a temporary publisher for the topic
-        print(rostopic.get_topic_type(topic_name))
-        temp_publisher = rospy.Publisher(topic_name, strlist[0], queue_size=10)
+        #print(rostopic.get_topic_type(topic_name))
+        temp_publisher = rospy.Publisher(topic_name, msg_class, queue_size=10)
         rospy.sleep(1)  # Give some time for connections to be established
 
         # Get the number of connections (subscribers)
         num_connections = temp_publisher.get_num_connections()
+        # Unregister the temporary publisher
+        temp_publisher.unregister()
         return num_connections
     except Exception as e:
-        print(f"Failed to get subscription count for topic '{topic_name}': {e}")
+        print(f"Failed to get subscription count for topic '{topic_name}'")
         return None
-    # Maybe get over get_num_connections of Publisher, but then need the msg_type
 
 def publisher_count_per_topic(topic_name): # currently not working
     """
@@ -132,7 +146,36 @@ def publisher_count_per_topic(topic_name): # currently not working
     if not is_node_initialized():
         print("ROS1: ERROR: First init a node")
         return None
-# Maybe get over get_num_connections of Subscriber, but then need the msg_type
+
+    if not topic_name.startswith('/'):
+        topic_name = '/' + topic_name
+    try:
+        strlist = rostopic.get_topic_type(topic_name)
+
+        if strlist is None or strlist[0] is None:
+            print(f"Failed to get publisher count for topic '{topic_name}': Topic not found")
+            return 0
+        package_name, message_name = strlist[0].split('/')
+
+        # Import the message module dynamically
+        roslib.load_manifest(package_name)
+        msg_module = __import__(f"{package_name}.msg", fromlist=[message_name])
+
+        # Get the message class
+        msg_class = getattr(msg_module, message_name)
+
+        # Create a temporary subscriber for the topic
+        temp_subscriber = rospy.Subscriber(topic_name, msg_class, callback=lambda msg: None)
+        rospy.sleep(1)  # Give some time for connections to be established
+
+        # Get the number of connections (publishers)
+        num_connections = temp_subscriber.impl.get_num_connections()
+        # Unregister the temporary subscriber
+        temp_subscriber.unregister()
+        return num_connections
+    except Exception as e:
+        print(f"Failed to get publisher count for topic '{topic_name}': {e}")
+        return None
 
 def create_publisher(topic, msg_type):
     """

@@ -1,3 +1,4 @@
+from math import e
 
 import rclpy
 from rclpy.node import Node
@@ -147,16 +148,16 @@ def create_subscriber(topic, msg_type, execute_cb):
     else:
         print("ROS2: ERROR: First init a node")
 
-def create_service(name,service_class, handler):
+def create_service(name,service_class, execute_cb):
     """
         Creates a service - the handler object is used as a callback.
 
         \param name Name of the service.
         \param service_class Class of the service.
-        \param handler Callback function for the service.
+        \param execute_cb Callback function for the service.
     """
     if node:
-        service = ROS2Service(node, name, service_class, handler)
+        service = ROS2Service(node, name, service_class, execute_cb)
         return UnifiedService(service)
     else:
         print("ROS2: ERROR: First init a node")
@@ -216,7 +217,7 @@ def get_all_services():
         \return List of service names and types or an empty list if node is not initialized.
     """
     if node:
-        return node.get_service_names_and_types()
+        return  [name for name , type in node.get_service_names_and_types()]
     else:
         print("ROS2: ERROR: First init a node")
         return []
@@ -228,7 +229,7 @@ def get_all_topics():
        \return List of topic names and types or an empty list if node is not initialized.
     """
     if node:
-        return node.get_topic_names_and_types()
+        return  [name for name , type in node.get_topic_names_and_types()]
     else:
         print("ROS2: ERROR: First init a node")
         return []
