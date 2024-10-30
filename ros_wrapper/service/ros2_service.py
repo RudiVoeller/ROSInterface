@@ -8,4 +8,4 @@ class ROS2Service:
 
     def shutdown(self):
         self.node.destroy_service(self.service)
-        self.node.destroy_node()
+        #self.node.destroy_node()

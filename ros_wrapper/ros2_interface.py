@@ -6,6 +6,8 @@ from ros_wrapper.param.unified_param import UnifiedParameter
 from ros_wrapper.action_client.ros2_action_client import ROS2ActionClient
 from ros_wrapper.action_server.ros2_action_server import ROS2ActionServer
 from ros_wrapper.publisher.ros2_publisher import ROS2Publisher
+from ros_wrapper.service.ros2_service import ROS2Service
+from ros_wrapper.service.unified_service import UnifiedService
 from ros_wrapper.subscription.ros2_subscription import ROS2Subscription
 from ros_wrapper.subscription.unified_subscription import UnifiedSubscription
 from ros_wrapper.action_client.unified_action_client import UnifiedActionClient
@@ -129,7 +131,7 @@ def create_publisher(topic, msg_type):
     else:
         print("ROS2: ERROR: First init a node")
 
-def create_subscriber(topic, msg_type, callback):
+def create_subscriber(topic, msg_type, execute_cb):
     """
         Creates a subscriber and returns as UnifiedSubscriber.
 
@@ -140,7 +142,7 @@ def create_subscriber(topic, msg_type, callback):
     """
     print("ROS2: Creating Subscriber")
     if node:
-        subscription = ROS2Subscription(node, topic, msg_type, callback)
+        subscription = ROS2Subscription(node, topic, msg_type, execute_cb)
         return UnifiedSubscription(subscription)
     else:
         print("ROS2: ERROR: First init a node")
@@ -154,29 +156,30 @@ def create_service(name,service_class, handler):
         \param handler Callback function for the service.
     """
     if node:
-        node.create_service(service_class, name, handler)
+        service = ROS2Service(node, name, service_class, handler)
+        return UnifiedService(service)
     else:
         print("ROS2: ERROR: First init a node")
 
 #TODO: Need to be tested
-def call_service(service_name, service_type, *args):
+def call_service(service_name, service_class, *args):
     """
        Calls a service provided by another node.
 
        \param service_name Name of the service.
-       \param service_type Type of the service.
+       \param service_class Class of the service.
        \param args Arguments for the service call.
        \return Response from the service or None if node is not initialized.
     """
     if not node:
         print("ROS2: ERROR: First init a node")
         return None
-    client = node.create_client(service_type, service_name)
+    client = node.create_client(service_class, service_name)
 
     while not client.wait_for_service(timeout_sec=1.0):
         print(f"Service '{service_name}' not available, waiting...")
 
-    request = service_type.Request()
+    request = service_class.Request()
     request_fields = [field for field in dir(request) if
                       not field.startswith('_') and not field.startswith("SLOT_TYPES") and not callable(getattr(request, field))]
 

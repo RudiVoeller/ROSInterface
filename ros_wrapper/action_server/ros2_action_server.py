@@ -34,7 +34,7 @@ class ROS2ActionServer:
         """Wrapper für die vom Benutzer bereitgestellte execute_callback."""
         result = await self._user_callback(self, goal_handle)
         return result
-
+# TODO: Goal Handle in Konstruktor mit aufnehmen.
     def publish_feedback(self, goal_handle, feedback):
         """
         Sendet Feedback an den Client.

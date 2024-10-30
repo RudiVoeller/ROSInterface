@@ -12,6 +12,8 @@ from .param.unified_param import UnifiedParameter
 from ros_wrapper.action_client.ros1_action_client import ROS1ActionClient
 from ros_wrapper.action_server.ros1_action_server import ROS1ActionServer
 from .publisher.ros1_publisher import ROS1Publisher
+from .service.ros1_service import ROS1Service
+from .service.unified_service import UnifiedService
 from .subscription.ros1_subscription import ROS1Subscription
 from .subscription.unified_subscription import UnifiedSubscription
 from ros_wrapper.action_client.unified_action_client import UnifiedActionClient
@@ -172,7 +174,8 @@ def create_service(name,service_class, handler):
     if not is_node_initialized():
         print("ROS1: ERROR: First init a node")
         return None
-    return rospy.Service(name, service_class, handler)
+    service = ROS1Service(name, service_class, handler)
+    return UnifiedService(service)
 
 #TODO: Need to be tested
 def call_service(service_name, service_type, *args):
