@@ -2,54 +2,71 @@ import rospy
 import actionlib
 
 class ROS1ActionServer:
+    """
+             A server for handling ROS 1 action requests.
+
+             Attributes:
+                 server (SimpleActionServer): The action server instance.
+                 action_type (type): The type of the action.
+             """
     def __init__(self, action_name, action_type, execute_callback):
+
+
         """
-        Initialisiert den ROS 1 Action-Server.
-        :param action_name: Der Name der Action.
-        :param action_type: Der Typ der Action-Nachricht (z.B. MyAction).
-        :param execute_callback: Die Funktion, die aufgerufen wird, wenn ein Goal empfangen wird.
-        """
+               Initializes the ROS1ActionServer with the given action name, type, and callback.
+
+               Args:
+                   action_name (str): The name of the action.
+                   action_type (type): The type of the action.
+                   execute_cb (function): The callback function to execute when a goal is received.
+               """
+        self._user_callback = execute_callback  # Benutzerdefinierte execute_callback-Funktion
         self.server = actionlib.SimpleActionServer(
             action_name, action_type, execute_cb=self._execute_callback_wrapper, auto_start=False
         )
-        self._user_callback = execute_callback  # Benutzerdefinierte execute_callback-Funktion
         self.server.start()
-        rospy.loginfo(f"ROS 1 Action Server '{action_name}' gestartet.")
 
     def _execute_callback_wrapper(self, goal):
-        """Wrapper für die vom Benutzer bereitgestellte execute_callback."""
-        self._user_callback(self, goal)  # Aufruf der benutzerdefinierten Callback-Funktion
+        """Wrapper for the user provided execute_callback."""
+        return self._user_callback(self, goal)  # Aufruf der benutzerdefinierten Callback-Funktion
 
     def publish_feedback(self, feedback):
         """
-        Sendet Feedback an den Client.
-        :param feedback: Feedback-Nachricht.
+         Sends feedback to client.
+
+         feedback: Feedback-Message.
         """
         self.server.publish_feedback(feedback)
 
     def set_succeeded(self, result):
         """
-        Setzt das Ergebnis der Aktion als erfolgreich.
-        :param result: Ergebnis-Nachricht.
-        """
+              Sets the action server state to succeeded.
+
+              Args:
+                  result (Result): The result to send to the client.
+              """
         self.server.set_succeeded(result)
 
     def set_aborted(self, result=None):
         """
-        Markiert die Aktion als abgebrochen.
-        :param result: Optionales Ergebnis beim Abbruch.
-        """
+             Sets the action server state to aborted.
+
+             Args:
+                 result (Result): The result to send to the client.
+             """
         self.server.set_aborted(result)
 
     def is_preempt_requested(self):
         """
-        Überprüft, ob die Aktion abgebrochen wurde (Preemption).
-        :return: True, wenn eine Preemption angefordert wurde.
-        """
+             Checks if the action has been preempted.
+
+             Returns:
+                 True if a preemption has been requested.
+             """
         return self.server.is_preempt_requested()
 
     def set_preempted(self):
         """
-        Setzt die Aktion als abgebrochen durch den Benutzer (Preemption).
-        """
+             Sets the action server state to preempted.
+             """
         self.server.set_preempted()

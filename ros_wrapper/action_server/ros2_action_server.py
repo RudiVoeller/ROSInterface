@@ -3,14 +3,24 @@ import inspect
 from rclpy.action import ActionServer
 
 class ROS2ActionServer:
+    """
+        A server for handling ROS 2 action requests.
+
+        Attributes:
+            server (ActionServer): The action server instance.
+            action_type (type): The type of the action.
+        """
+
     def __init__(self, node, action_name, action_type, execute_callback):
         """
-        Initialisiert den ROS 2 Action-Server.
-        :param node: Der ROS 2 Node, der den Server hostet.
-        :param action_name: Der Name der Action.
-        :param action_type: Der Typ der Action-Nachricht (z.B. MyAction).
-        :param execute_callback: Die Funktion, die aufgerufen wird, wenn ein Goal empfangen wird.
-        """
+              Initializes the ROS2ActionServer with the given node, action name, type, and callback.
+
+              Args:
+                  node (Node): The ROS 2 node.
+                  action_name (str): The name of the action.
+                  action_type (type): The type of the action.
+                  execute_cb (function): The callback function to execute when a goal is received.
+              """
         self.node = node
         self._user_callback = execute_callback  # Benutzerdefinierte execute_callback-Funktion
 
@@ -27,49 +37,56 @@ class ROS2ActionServer:
         self.node.get_logger().info(f"ROS 2 Action Server '{action_name}' gestartet.")
 
     def _execute_callback_wrapper(self, goal_handle):
-        """Wrapper für die vom Benutzer bereitgestellte execute_callback."""
         return self._user_callback(self, goal_handle)
 
     async def _execute_callback_wrapper_async(self, goal_handle):
-        """Wrapper für die vom Benutzer bereitgestellte execute_callback."""
         result = await self._user_callback(self, goal_handle)
         return result
 # TODO: Goal Handle in Konstruktor mit aufnehmen.
     def publish_feedback(self, goal_handle, feedback):
         """
-        Sendet Feedback an den Client.
-        :param goal_handle: Das Handle des aktuellen Goals.
-        :param feedback: Feedback-Nachricht.
+          Sends feedback to client.
+
+          feedback: Feedback-Message.
         """
         goal_handle.publish_feedback(feedback)
 
     def set_succeeded(self, goal_handle, result):
         """
-        Setzt das Ergebnis der Aktion als erfolgreich.
-        :param goal_handle: Das Handle des aktuellen Goals.
-        :param result: Ergebnis-Nachricht.
-        """
+              Sets the action server state to succeeded.
+
+              Args:
+                  goal_handle (GoalHandle): The goal handle.
+                  result (Result): The result to send to the client.
+              """
         goal_handle.succeed()
         return result
 
     def set_aborted(self, goal_handle, result=None):
         """
-        Markiert die Aktion als abgebrochen.
-        :param goal_handle: Das Handle des aktuellen Goals.
-        :param result: Optionales Ergebnis beim Abbruch.
-        """
+              Sets the action server state to aborted.
+
+              Args:
+                  goal_handle (GoalHandle): The goal handle.
+                  result (Result): The result to send to the client.
+              """
         goal_handle.abort()
         return result
 
     def is_preempt_requested(self, goal_handle):
         """
-        Überprüft, ob die Aktion abgebrochen wurde (Preemption).
-        :return: True, wenn eine Preemption angefordert wurde.
-        """
+              Checks if the action has been preempted.
+
+              Returns:
+                  True if a preemption has been requested.
+                  """
         return not goal_handle.is_active
 
     def set_preempted(self, goal_handle):
         """
-        Setzt die Aktion als abgebrochen durch den Benutzer (Preemption).
-        """
+           Sets the action server state to preempted.
+
+           Args:
+               goal_handle (GoalHandle): The goal handle.
+           """
         goal_handle.canceled()

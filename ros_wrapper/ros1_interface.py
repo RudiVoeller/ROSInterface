@@ -6,6 +6,8 @@ import rostopic
 import roslib
 import subprocess
 import time
+import inspect
+
 
 from docutils.nodes import topic
 
@@ -230,6 +232,7 @@ def call_service(service_name, service_type, *args):
            \param args Arguments for the service call.
            \return Response from the service or None if node is not initialized.
     """
+
     if not is_node_initialized():
         print("ROS1: ERROR: First init a node")
         return None
@@ -240,6 +243,14 @@ def call_service(service_name, service_type, *args):
 
         # Service aufrufen mit den Argumenten
         response = service_proxy(*args)
+
+        response_attrs = inspect.getmembers(response, lambda a: not (inspect.isroutine(a)))
+        response_values = [a for a in response_attrs if not (a[0].startswith('_'))]
+        if response_values:
+            return response_values[0][1]
+        else:
+            return None
+
         return response
     except rospy.ServiceException as e:
         print(f"Service call dont work: {e}")
