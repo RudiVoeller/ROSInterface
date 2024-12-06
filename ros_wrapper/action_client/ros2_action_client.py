@@ -19,10 +19,6 @@ class ROS2ActionClient:
         rclpy.spin_until_future_complete(self.client._node, self.future)
         self.goal_handle = self.future.result()
 
-    def wait_for_result(self):
-        if self.goal_handle.accepted:
-            self.result_future = self.goal_handle.get_result_async()
-            rclpy.spin_until_future_complete(self.client._node, self.result_future)
 
     def get_result(self):
         return self.result_future.result().result if self.goal_handle.accepted else None
