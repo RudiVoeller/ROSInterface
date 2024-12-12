@@ -62,7 +62,7 @@ class ROS2ActionServer:
         goal_handle.succeed()
         return result
 
-    def set_aborted(self, goal_handle, result=None):
+    def set_aborted(self, goal_handle):
         """
               Sets the action server state to aborted.
 
@@ -71,7 +71,6 @@ class ROS2ActionServer:
                   result (Result): The result to send to the client.
               """
         goal_handle.abort()
-        return result
 
     def is_preempt_requested(self, goal_handle):
         """

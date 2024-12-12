@@ -16,7 +16,6 @@ from ros_wrapper.action_server.unified_action_server import UnifiedActionServer
 from ros_wrapper.publisher.unified_publisher import UnifiedPublisher
 
 node = None
-action_server = None
 
 def init_node(node_name, anonymous=False):
     """
@@ -243,12 +242,3 @@ def spin():
         node.destroy_node()
         rclpy.shutdown()
 
-
-
-#FIXME: Only available in node
-def spin_once():
-    """
-       Spins the node once.
-    """
-    if node:
-        rclpy.spin_once(node)

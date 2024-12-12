@@ -20,6 +20,8 @@ class ROS2ActionClient:
                     action_type (type): The type of the action.
                 """
 
+        self.goal_handle = None
+        self.future = None
         self.client = ActionClient(node, action_type, action_name)
         self.action_type = action_type
         while not self.client.wait_for_server(timeout_sec=1.0):
@@ -54,4 +56,4 @@ class ROS2ActionClient:
                     Result: The result from the action server.
                 """
 
-        return self.result_future.result().result if self.goal_handle.accepted else None
+        return self.future.result().result if self.goal_handle.accepted else None
