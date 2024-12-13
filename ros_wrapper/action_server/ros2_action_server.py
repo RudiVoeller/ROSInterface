@@ -1,8 +1,10 @@
-import rclpy
 import inspect
 from rclpy.action import ActionServer
 
-class ROS2ActionServer:
+from ros_wrapper.action_server.unified_action_server import UnifiedActionServer
+
+
+class ROS2ActionServer(UnifiedActionServer):
     """
         A server for handling ROS 2 action requests.
 

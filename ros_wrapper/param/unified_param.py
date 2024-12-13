@@ -12,7 +12,7 @@ class UnifiedParameter:
                 Args:
                     value: The value of the parameter.
                 """
-        self.value = value
+        self.__value = value
 
     def get_value(self):
         """
@@ -21,4 +21,4 @@ class UnifiedParameter:
                 Returns:
                     The value of the parameter.
                 """
-        return self.value
+        return self.__value

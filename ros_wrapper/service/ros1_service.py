@@ -1,6 +1,9 @@
 import rospy
 
-class ROS1Service:
+from ros_wrapper.service.unified_service import UnifiedService
+
+
+class ROS1Service(UnifiedService):
     def __init__(self, name, service_class, handler):
         """
                 Initializes the ROS1Service with the given service name, service class, and handler.
@@ -10,10 +13,10 @@ class ROS1Service:
                     service_class (type): The type of the service.
                     handler (callable): The handler function for the service.
                 """
-        self.service = rospy.Service(name, service_class, handler)
+        self.__service = rospy.Service(name, service_class, handler)
 
     def shutdown(self):
         """
                 Shuts down the service.
                 """
-        self.service.shutdown()
+        self.__service.shutdown()

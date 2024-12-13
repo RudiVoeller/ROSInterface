@@ -1,13 +1,9 @@
-class UnifiedPublisher:
-    def __init__(self, publisher):
-        """
-                Publishes a message to the topic.
+from abc import ABC, abstractmethod
 
-                Args:
-                    msg (msg_type): The message to publish.
-                """
-        self.publisher = publisher
 
+class UnifiedPublisher(ABC):
+
+    @abstractmethod
     def publish(self, msg):
         """
                 Publishes a message to the appropriate topic based on the ROS version.
@@ -15,10 +11,10 @@ class UnifiedPublisher:
                 Args:
                     msg (msg_type): The message to publish.
                 """
-        self.publisher.publish(msg)
-
+        pass
+    @abstractmethod
     def unregister(self):
         """
                 Unregisters the publisher from the ROS master or ROS 2 node.
                 """
-        self.publisher.unregister()
+        pass

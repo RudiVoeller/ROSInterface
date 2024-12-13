@@ -1,12 +1,15 @@
 import actionlib
 
-class ROS1ActionClient:
+from ros_wrapper.action_client.unified_action_client import UnifiedActionClient
+
+
+class ROS1ActionClient(UnifiedActionClient):
     """
       A client for interacting with ROS 1 action servers.
 
       Attributes:
-          client (SimpleActionClient): The action client instance.
-          action_type (type): The type of the action.
+          __client (SimpleActionClient): The action client instance.
+          __action_type (type): The type of the action.
       """
 
     def __init__(self, action_name, action_type):
@@ -18,9 +21,9 @@ class ROS1ActionClient:
                     action_type (type): The type of the action.
                 """
 
-        self.client = actionlib.SimpleActionClient(action_name, action_type)
-        self.action_type = action_type
-        self.client.wait_for_server()
+        self.__client = actionlib.SimpleActionClient(action_name, action_type)
+        self.__action_type = action_type
+        self.__client.wait_for_server()
 
     def send_goal(self, goal):
         """
@@ -30,13 +33,13 @@ class ROS1ActionClient:
                     goal (Goal): The goal to send to the action server.
                 """
 
-        if self.action_type is None:
+        if self.__action_type is None:
             print("Action type not set")
             return
        
 
-        self.client.send_goal(goal)
-        self.client.wait_for_result()
+        self.__client.send_goal(goal)
+        self.__client.wait_for_result()
 
 
     def get_result(self):
@@ -47,4 +50,4 @@ class ROS1ActionClient:
                     Result: The result from the action server.
                 """
 
-        return self.client.get_result()
+        return self.__client.get_result()

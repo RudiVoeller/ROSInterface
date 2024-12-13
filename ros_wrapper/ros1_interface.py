@@ -20,6 +20,22 @@ from ros_wrapper.action_client.unified_action_client import UnifiedActionClient
 from ros_wrapper.action_server.unified_action_server import UnifiedActionServer
 from ros_wrapper.publisher.unified_publisher import UnifiedPublisher
 
+def __is_node_initiialized(a_func):
+
+    def wrapTheFunction():
+
+        try:
+            rospy.get_node_uri()  # Prüft, ob der Node bereits initialisiert wurde
+        except rospy.exceptions.ROSException:
+            print("ROS1: ERROR: First init a node")
+            return None
+
+        a_func()
+
+
+    return wrapTheFunction
+
+
 def init_node(name, anonymous=False):
     """
        Create node and put the object in the member variable node.
@@ -61,12 +77,10 @@ def set_param(param_name, value):
            \param name Name of the parameter.
            \param value Value of the parameter.
     """
-    if not __is_node_initialized():
-        print("ROS1: ERROR: First init a node")
-        return None
+
     rospy.set_param(param_name, value)
 
-
+@__is_node_initiialized
 def get_param(param_name, default=None):
     """
             Gets the parameter from the parameter server.
@@ -75,18 +89,16 @@ def get_param(param_name, default=None):
             \param default Default value if the parameter is not found.
             \return UnifiedParameter object or None if node is not initialized.
     """
-    if not __is_node_initialized():
-        print("ROS1: ERROR: First init a node")
-        return None
+
     value = rospy.get_param(param_name, default)
     return UnifiedParameter(value)
 
+@__is_node_initiialized
 def delete_param(param_name):
-    if not __is_node_initialized():
-        print("ROS1: ERROR: First init a node")
-        return None
+
     rospy.delete_param(param_name)
 
+@__is_node_initiialized
 def subscription_count_per_topic(topic_name):
     """
             Counts the amount of subscriptions for one topic.
@@ -94,9 +106,7 @@ def subscription_count_per_topic(topic_name):
             \param topic_name Name of the topic.
             \return Number of subscriptions or None if node is not initialized.
     """
-    if not __is_node_initialized():
-        print("ROS1: ERROR: First init a node")
-        return None
+
 
     if not topic_name.startswith('/'):
         topic_name = '/' + topic_name
@@ -130,6 +140,7 @@ def subscription_count_per_topic(topic_name):
         print(f"Failed to get subscription count for topic '{topic_name}'")
         return None
 
+@__is_node_initiialized
 def publisher_count_per_topic(topic_name): # currently not working
     """
             Counts the amount of publishers for one topic.
@@ -137,9 +148,7 @@ def publisher_count_per_topic(topic_name): # currently not working
             \param topic_name Name of the topic.
             \return Number of publishers or None if node is not initialized.
     """
-    if not __is_node_initialized():
-        print("ROS1: ERROR: First init a node")
-        return None
+
 
     if not topic_name.startswith('/'):
         topic_name = '/' + topic_name
@@ -171,6 +180,8 @@ def publisher_count_per_topic(topic_name): # currently not working
         print(f"Failed to get publisher count for topic '{topic_name}': {e}")
         return None
 
+
+@__is_node_initiialized
 def create_publisher(topic, msg_type):
     """
             Creates a publisher and returns as UnifiedPublisher.
@@ -179,12 +190,11 @@ def create_publisher(topic, msg_type):
             \param msg_type Type of the message.
             \return UnifiedPublisher object or None if node is not initialized.
     """
-    if not __is_node_initialized():
-        print("ROS1: ERROR: First init a node")
-        return None
+
     publisher = ROS1Publisher(topic, msg_type)
     return UnifiedPublisher(publisher)
 
+@__is_node_initiialized
 def create_subscriber(topic, msg_type, callback):
     """
             Creates a subscriber and returns as UnifiedSubscriber.
@@ -194,12 +204,11 @@ def create_subscriber(topic, msg_type, callback):
             \param callback Callback function for the subscription.
             \return UnifiedSubscription object or None if node is not initialized.
     """
-    if not __is_node_initialized():
-        print("ROS1: ERROR: First init a node")
-        return None
+
     subscription = ROS1Subscription(topic, msg_type, callback)
     return UnifiedSubscription(subscription)
 
+@__is_node_initiialized
 def create_service(name,service_class, handler):
     """
             Creates a service - the handler object is used as a callback.
@@ -208,13 +217,11 @@ def create_service(name,service_class, handler):
             \param service_class Class of the service.
             \param handler Callback function for the service.
     """
-    if not __is_node_initialized():
-        print("ROS1: ERROR: First init a node")
-        return None
+
     service = ROS1Service(name, service_class, handler)
     return UnifiedService(service)
 
-#TODO: Need to be tested
+@__is_node_initiialized
 def call_service(service_name, service_type, *args):
     """
            Calls a service provided by another node.
@@ -225,9 +232,7 @@ def call_service(service_name, service_type, *args):
            \return Response from the service or None if node is not initialized.
     """
 
-    if not __is_node_initialized():
-        print("ROS1: ERROR: First init a node")
-        return None
+
     rospy.wait_for_service(service_name)
     try:
         # Service-Proxy erstellen
@@ -243,7 +248,6 @@ def call_service(service_name, service_type, *args):
         else:
             return None
 
-        return response
     except rospy.ServiceException as e:
         print(f"Service call dont work: {e}")
 
@@ -271,13 +275,12 @@ def get_all_topics():
     """
     return rospy.get_published_topics()
 
+@__is_node_initiialized
 def spin():
     """
            Spins the node.
     """
-    if not __is_node_initialized():
-        print("ROS1: ERROR: First init a node")
-        return None
+
     rospy.spin()
 
 #############INTERN################
@@ -297,10 +300,4 @@ def __start_roscore():
     except Exception as e:
         print(f"Failed to start roscore: {e}")
 
-""" Checks if a node is initialized """
-def __is_node_initialized():
-    try:
-        rospy.get_node_uri()  # Prüft, ob der Node bereits initialisiert wurde
-        return True
-    except rospy.exceptions.ROSException:
-        return False
+

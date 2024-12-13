@@ -1,12 +1,15 @@
 import rospy
 import actionlib
 
-class ROS1ActionServer:
+from ros_wrapper.action_server.unified_action_server import UnifiedActionServer
+
+
+class ROS1ActionServer(UnifiedActionServer):
     """
              A server for handling ROS 1 action requests.
 
              Attributes:
-                 server (SimpleActionServer): The action server instance.
+                 __server (SimpleActionServer): The action server instance.
                  action_type (type): The type of the action.
              """
     def __init__(self, action_name, action_type, execute_callback):
@@ -20,15 +23,15 @@ class ROS1ActionServer:
                    action_type (type): The type of the action.
                    execute_cb (function): The callback function to execute when a goal is received.
                """
-        self._user_callback = execute_callback  # Benutzerdefinierte execute_callback-Funktion
-        self.server = actionlib.SimpleActionServer(
+        self.__user_callback = execute_callback  # Benutzerdefinierte execute_callback-Funktion
+        self.__server = actionlib.SimpleActionServer(
             action_name, action_type, execute_cb=self._execute_callback_wrapper, auto_start=False
         )
-        self.server.start()
+        self.__server.start()
 
     def _execute_callback_wrapper(self, goal):
         """Wrapper for the user provided execute_callback."""
-        return self._user_callback(self, goal)  # Aufruf der benutzerdefinierten Callback-Funktion
+        return self.__user_callback(self, goal)  # Aufruf der benutzerdefinierten Callback-Funktion
 
     def publish_feedback(self, feedback):
         """
@@ -36,7 +39,7 @@ class ROS1ActionServer:
 
          feedback: Feedback-Message.
         """
-        self.server.publish_feedback(feedback)
+        self.__server.publish_feedback(feedback)
 
     def set_succeeded(self, result):
         """
@@ -45,7 +48,7 @@ class ROS1ActionServer:
               Args:
                   result (Result): The result to send to the client.
               """
-        self.server.set_succeeded(result)
+        self.__server.set_succeeded(result)
 
     def set_aborted(self, result=None):
         """
@@ -54,7 +57,7 @@ class ROS1ActionServer:
              Args:
                  result (Result): The result to send to the client.
              """
-        self.server.set_aborted(result)
+        self.__server.set_aborted(result)
 
     def is_preempt_requested(self):
         """
@@ -63,10 +66,10 @@ class ROS1ActionServer:
              Returns:
                  True if a preemption has been requested.
              """
-        return self.server.is_preempt_requested()
+        return self.__server.is_preempt_requested()
 
     def set_preempted(self):
         """
              Sets the action server state to preempted.
              """
-        self.server.set_preempted()
+        self.__server.set_preempted()
