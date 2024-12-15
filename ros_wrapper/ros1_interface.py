@@ -57,7 +57,7 @@ def create_action_server(action_name, action_type, execute_cb):
     """
     server = ROS1ActionServer(action_name, action_type, execute_cb)
     rospy.loginfo(f"Action-Server '{action_name}' in ROS 1 gestartet.")
-    return UnifiedActionServer(server)
+    return server
 
 def create_action_client(action_name, action_type):
     """
@@ -68,7 +68,7 @@ def create_action_client(action_name, action_type):
           \return UnifiedActionClient object or None if node is not initialized.
     """
     client = ROS1ActionClient(action_name, action_type)
-    return UnifiedActionClient(client)
+    return client
 
 def set_param(param_name, value):
     """
@@ -192,7 +192,7 @@ def create_publisher(topic, msg_type):
     """
 
     publisher = ROS1Publisher(topic, msg_type)
-    return UnifiedPublisher(publisher)
+    return publisher
 
 @__is_node_initiialized
 def create_subscriber(topic, msg_type, callback):
@@ -206,7 +206,7 @@ def create_subscriber(topic, msg_type, callback):
     """
 
     subscription = ROS1Subscription(topic, msg_type, callback)
-    return UnifiedSubscription(subscription)
+    return subscription
 
 @__is_node_initiialized
 def create_service(name,service_class, handler):
@@ -219,7 +219,7 @@ def create_service(name,service_class, handler):
     """
 
     service = ROS1Service(name, service_class, handler)
-    return UnifiedService(service)
+    return service
 
 @__is_node_initiialized
 def call_service(service_name, service_type, *args):
@@ -280,7 +280,6 @@ def spin():
     """
            Spins the node.
     """
-
     rospy.spin()
 
 #############INTERN################
