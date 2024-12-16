@@ -2,6 +2,7 @@ from math import e
 
 import rclpy
 from rclpy.node import Node
+from rcl_interfaces.srv import GetParameters
 
 from ros_wrapper.param.unified_param import UnifiedParameter
 from ros_wrapper.action_client.ros2_action_client import ROS2ActionClient
@@ -9,8 +10,7 @@ from ros_wrapper.action_server.ros2_action_server import ROS2ActionServer
 from ros_wrapper.publisher.ros2_publisher import ROS2Publisher
 from ros_wrapper.service.ros2_service import ROS2Service
 from ros_wrapper.subscription.ros2_subscription import ROS2Subscription
-from ros_wrapper.action_client.unified_action_client import UnifiedActionClient
-from ros_wrapper.action_server.unified_action_server import UnifiedActionServer
+
 
 _node = None
 
@@ -30,10 +30,11 @@ def __is_node_initiialized(a_func):
 
 def init_node(node_name, anonymous=False):
     """
-    Create node and put the object in the member variable node.
+    Creates a ROS 2 node.
 
-    \param node_name Name of the node.
-    \param anonymous If True, the node name will be made unique by adding random characters.
+    Args:
+        node_name (str): Name of the node.
+        anonymous (bool, optional): If True, the node name will be made unique by adding random characters. Defaults to False.
     """
     rclpy.init()
     global _node
@@ -42,12 +43,15 @@ def init_node(node_name, anonymous=False):
 @__is_node_initiialized
 def create_action_server(action_name, action_type, execute_cb):
     """
-        Create the action server and returns as UnifiedActionServer.
+    Creates an action server and returns it as a UnifiedActionServer.
 
-        \param action_name Name of the action.
-        \param action_type Type of the action.
-        \param execute_cb Callback function to execute the action.
-        \return UnifiedActionServer object or None if node is not initialized.
+    Args:
+        action_name (str): Name of the action.
+        action_type (type): Type of the action.
+        execute_cb (callable): Callback function to execute the action.
+
+    Returns:
+        UnifiedActionServer: The created action server.
     """
 
 
@@ -57,11 +61,14 @@ def create_action_server(action_name, action_type, execute_cb):
 @__is_node_initiialized
 def create_action_client(action_name, action_type):
     """
-      Create the action client and returns as UnifiedActionClient.
+    Creates an action client and returns it as a UnifiedActionClient.
 
-      \param action_name Name of the action.
-      \param action_type Type of the action.
-      \return UnifiedActionClient object or None if node is not initialized.
+    Args:
+        action_name (str): Name of the action.
+        action_type (type): Type of the action.
+
+    Returns:
+        UnifiedActionClient: The created action client.
     """
 
     client = ROS2ActionClient(_node, action_name, action_type)
@@ -70,38 +77,65 @@ def create_action_client(action_name, action_type):
 @__is_node_initiialized
 def set_param(name, value):
     """
-       Sets a parameter on the parameter server.
+    Sets a parameter on the node.
 
-       \param name Name of the parameter.
-       \param value Value of the parameter.
+    Args:
+        name (str): Name of the parameter.
+        value: Value of the parameter.
     """
     _node.declare_parameter(name, value)
 
 @__is_node_initiialized
 def get_param(param_name, default = None):
     """
-        Gets the parameter from the parameter server.
+    Gets a parameter from any node that has it.
 
-        \param param_name Name of the parameter.
-        \param default Default value if the parameter is not found.
-        \return UnifiedParameter object or None if node is not initialized.
+    Args:
+        param_name (str): Name of the parameter.
+        default: Default value if the parameter is not found. Defaults to None.
+
+    Returns:
+        UnifiedParameter: The parameter value.
     """
 
-    value = _node.get_parameter_or(param_name, default)
-    return UnifiedParameter(value.value)
+    try:
+        node_names_and_namespaces = _node.get_node_names_and_namespaces()
+        for node_name, namespace in node_names_and_namespaces:
+            client = _node.create_client(GetParameters, f'{namespace}/{node_name}/get_parameters')
+            request = GetParameters.Request()
+            request.names = [param_name]
+
+            future = client.call_async(request)
+            rclpy.spin_until_future_complete(_node, future)
+            client.destroy()
+            if future.result() is not None and future.result().values:
+                value = future.result().values[0].value
+                return UnifiedParameter(value)
+    except Exception as e:
+        print(f"Failed to get parameter '{param_name}': {e}")
+
+    return UnifiedParameter(default)
 
 @__is_node_initiialized
 def delete_param(param_name):
+    """
+        Deletes a parameter from the node.
 
+        Args:
+            param_name (str): Name of the parameter.
+        """
     _node.undeclare_parameter(param_name)
 
 @__is_node_initiialized
 def subscription_count_per_topic(topic_name):
     """
-        Counts the amount of subscriptions for one topic.
+    Counts the number of subscriptions for a topic.
 
-        \param topic_name Name of the topic.
-        \return Number of subscriptions or None if node is not initialized.
+    Args:
+        topic_name (str): Name of the topic.
+
+    Returns:
+        int: Number of subscriptions.
     """
 
     return _node.count_subscribers(topic_name)
@@ -109,10 +143,13 @@ def subscription_count_per_topic(topic_name):
 @__is_node_initiialized
 def publisher_count_per_topic(topic_name):
     """
-        Counts the amount of publishers for one topic.
+    Counts the number of publishers for a topic.
 
-        \param topic_name Name of the topic.
-        \return Number of publishers or None if node is not initialized.
+    Args:
+        topic_name (str): Name of the topic.
+
+    Returns:
+        int: Number of publishers.
     """
 
     return _node.count_publishers(topic_name)
@@ -120,11 +157,14 @@ def publisher_count_per_topic(topic_name):
 @__is_node_initiialized
 def create_publisher(topic, msg_type):
     """
-        Creates a publisher and returns as UnifiedPublisher.
+    Creates a publisher and returns it as a UnifiedPublisher.
 
-        \param topic Name of the topic.
-        \param msg_type Type of the message.
-        \return UnifiedPublisher object or None if node is not initialized.
+    Args:
+        topic (str): Name of the topic.
+        msg_type (type): Type of the message.
+
+    Returns:
+        UnifiedPublisher: The created publisher.
     """
     print("ROS2: Creating Publisher")
 
@@ -134,12 +174,15 @@ def create_publisher(topic, msg_type):
 @__is_node_initiialized
 def create_subscriber(topic, msg_type, execute_cb):
     """
-        Creates a subscriber and returns as UnifiedSubscriber.
+    Creates a subscriber and returns it as a UnifiedSubscriber.
 
-        \param topic Name of the topic.
-        \param msg_type Type of the message.
-        \param callback Callback function for the subscription.
-        \return UnifiedSubscription object or None if node is not initialized.
+    Args:
+        topic (str): Name of the topic.
+        msg_type (type): Type of the message.
+        execute_cb (callable): Callback function for the subscription.
+
+    Returns:
+        UnifiedSubscription: The created subscription.
     """
     print("ROS2: Creating Subscriber")
 
@@ -149,11 +192,15 @@ def create_subscriber(topic, msg_type, execute_cb):
 @__is_node_initiialized
 def create_service(name,service_class, execute_cb):
     """
-        Creates a service - the handler object is used as a callback.
+    Creates a service and returns it as a UnifiedService.
 
-        \param name Name of the service.
-        \param service_class Class of the service.
-        \param execute_cb Callback function for the service.
+    Args:
+        name (str): Name of the service.
+        service_class (type): Class of the service.
+        execute_cb (callable): Callback function for the service.
+
+    Returns:
+        UnifiedService: The created service.
     """
 
     service = ROS2Service(_node, name, service_class, execute_cb)
@@ -162,12 +209,15 @@ def create_service(name,service_class, execute_cb):
 @__is_node_initiialized
 def call_service(service_name, service_class, *args):
     """
-       Calls a service provided by another node.
+    Calls a service provided by another node.
 
-       \param service_name Name of the service.
-       \param service_class Class of the service.
-       \param args Arguments for the service call.
-       \return Response from the service or None if node is not initialized.
+    Args:
+        service_name (str): Name of the service.
+        service_class (type): Class of the service.
+        *args: Arguments for the service call.
+
+    Returns:
+        Response: Response from the service.
     """
 
     client = _node.create_client(service_class, service_name)
@@ -185,6 +235,7 @@ def call_service(service_name, service_class, *args):
     future = client.call_async(request)
     rclpy.spin_until_future_complete(_node, future)
 
+    client.destroy()
     if future.result() is not None:
         return future.result()
     else:
@@ -194,9 +245,10 @@ def call_service(service_name, service_class, *args):
 @__is_node_initiialized
 def get_all_nodes():
     """
-       Gets all the reachable nodes in the network.
+    Gets all the reachable nodes in the network.
 
-       \return List of node names or an empty list if node is not initialized.
+    Returns:
+        list: List of node names.
     """
 
     node_names_and_namespaces = _node.get_node_names_and_namespaces()
@@ -206,9 +258,10 @@ def get_all_nodes():
 @__is_node_initiialized
 def get_all_services():
     """
-        Gets all the reachable services in the network.
+    Gets all the reachable services in the network.
 
-        \return List of service names and types or an empty list if node is not initialized.
+    Returns:
+        list: List of service names and types.
     """
 
     return  [name for name , type in _node.get_service_names_and_types()]
@@ -216,9 +269,10 @@ def get_all_services():
 @__is_node_initiialized
 def get_all_topics():
     """
-       Gets all the reachable topics in the network.
+    Gets all the reachable topics in the network.
 
-       \return List of topic names and types or an empty list if node is not initialized.
+    Returns:
+        list: List of topic names and types.
     """
 
     return  [name for name , type in _node.get_topic_names_and_types()]
