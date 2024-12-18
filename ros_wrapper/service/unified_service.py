@@ -1,13 +1,11 @@
-class UnifiedService:
-    def __init__(self, service):
-        """Initializes the UnifiedService.
+from abc import ABC, abstractmethod
 
-                Args:
-                    service (Service): The ROS service (either ROS1 or ROS2).
-                """
-        self.service = service
 
+class UnifiedService(ABC):
+
+    @abstractmethod
     def shutdown(self):
-        """Shuts down the service."""
-
-        self.service.shutdown()
+        """
+               Shuts down the service.
+               """
+        pass

@@ -1,25 +1,31 @@
 import rospy
 
-class ROS1Publisher:
+from ros_wrapper.subscription.unified_subscription import UnifiedSubscription
+
+
+class ROS1Publisher(UnifiedSubscription):
     def __init__(self, topic, msg_type, queue_size=10):
-        """Initializes the ROS1Publisher.
-
-             Args:
-                 topic (str): The name of the topic to publish to.
-                 msg_type (rospy.Message): The type of the ROS message.
-                 queue_size (int, optional): The size of the message queue. Defaults to 10.
-             """
-        self.publisher = rospy.Publisher(topic, msg_type, queue_size=queue_size)
-
-    def unregister(self):
-        """Unregisters the publisher to stop it from publishing messages."""
-
-        self.publisher.unregister()
-
-    def publish(self, msg):
-        """Publishes a message to the topic.
+        """
+                Initializes the ROS1Publisher with the given topic, message type, and queue size.
 
                 Args:
-                    msg (rospy.Message): The message to publish.
+                    topic (str): The topic to publish to.
+                    msg_type (type): The type of the message to publish.
+                    queue_size (int, optional): The size of the message queue. Defaults to 10.
                 """
-        self.publisher.publish(msg)
+        self.__publisher = rospy.Publisher(topic, msg_type, queue_size=queue_size)
+
+    def unregister(self):
+        """
+                Unregisters the publisher from the ROS master.
+                """
+        self.__publisher.unregister()
+
+    def publish(self, msg):
+        """
+                Publishes a message to the topic.
+
+                Args:
+                    msg (msg_type): The message to publish.
+                """
+        self.__publisher.publish(msg)

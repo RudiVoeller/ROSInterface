@@ -1,20 +1,25 @@
 import rclpy
 from rclpy.node import Node
 
-class ROS2Service:
-    def __init__(self, node, name, service_class, execute_cb):
-        """Initializes the ROS2Service.
+from ros_wrapper.service.unified_service import UnifiedService
 
-        Args:
-            node (Node): The ROS2 node.
-            name (str): The name of the service.
-            service_class (Service): The class of the ROS service.
-            handler (function): The callback function for the service.
+
+class ROS2Service(UnifiedService):
+    def __init__(self, node, name, service_class, execute_cb):
         """
-        self.node = node
-        self.service = self.node.create_service(service_class, name, execute_cb)
+                Initializes the ROS2Service with the given node, service name, service class, and handler.
+
+                Args:
+                    node (Node): The ROS 2 node instance.
+                    name (str): The name of the service.
+                    service_class (type): The type of the service.
+                    handler (callable): The handler function for the service.
+                """
+        self.__node = node
+        self.__service = self.__node.create_service(service_class, name, execute_cb)
 
     def shutdown(self):
-        """Shuts down the service."""
-
-        self.node.destroy_service(self.service)
+        """
+                Shuts down the service.
+                """
+        self.__node.destroy_service(self.__service)

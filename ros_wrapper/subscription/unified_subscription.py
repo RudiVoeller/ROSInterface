@@ -1,14 +1,10 @@
-# ros_wrapper/unified_subscription.py
-class UnifiedSubscription:
-    def __init__(self, subscription):
-        """Initializes the UnifiedSubscription.
+from abc import ABC, abstractmethod
 
-                Args:
-                    subscription (Subscription): The ROS subscription (either ROS1 or ROS2).
-                """
-        self.subscription = subscription
+class UnifiedSubscription(ABC):
 
+    @abstractmethod
     def unregister(self):
-        """Unregisters the subscription to stop receiving messages."""
-
-        self.subscription.unregister()
+        """
+                Unregisters the subscriber from the ROS master or ROS 2 node.
+                """
+        pass

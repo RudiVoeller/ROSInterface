@@ -1,10 +1,8 @@
 from time import sleep
 
 import ros_wrapper as ros
-from std_msgs.msg import String
 import unittest
 import multiprocessing
-import time
 
 from test_utils import init_subscriber, init_publisher
 
