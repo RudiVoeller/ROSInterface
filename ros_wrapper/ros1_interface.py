@@ -1,11 +1,12 @@
+import random
+import string
+
 import rospy
 import rosnode
 import rosgraph
 import rosservice
 import rostopic
 import roslib
-import subprocess
-import time
 import inspect
 
 from .param.unified_param import UnifiedParameter
@@ -20,11 +21,18 @@ def __is_node_initiialized(a_func):
 
     def wrapTheFunction():
 
+
+        if not rosgraph.is_master_online():
+            print("ROS1: ERROR: First start roscore")
+            return None
+
         try:
             rospy.get_node_uri()  # Prüft, ob der Node bereits initialisiert wurde
         except rospy.exceptions.ROSException:
-            print("ROS1: ERROR: First init a node")
-            return None
+            print("ROS1: WARNING: No node initialized, Init node")
+            letters = string.ascii_letters + string.digits
+            name =  ''.join(random.choice(letters) for i in range(10))
+            rospy.init_node(name, anonymous=True)
 
         a_func()
 
@@ -40,7 +48,6 @@ def init_node(name, anonymous=False):
             name (str): Name of the node.
             anonymous (bool, optional): If True, the node name will be made unique by adding random characters. Defaults to False.
         """
-    __start_roscore()
     rospy.init_node(name, anonymous=anonymous)
 
 def create_action_server(action_name, action_type, execute_cb):
@@ -263,7 +270,6 @@ def call_service(service_name, service_type, *args):
         Response: Response from the service.
     """
 
-
     rospy.wait_for_service(service_name)
     try:
         # Service-Proxy erstellen
@@ -316,24 +322,5 @@ def spin():
     """
     rospy.spin()
 
-#############INTERN################
-
-""" Starts the roscore if it is not started yet"""
-def __start_roscore():
-    """
-        Starts the roscore if it is not started yet.
-        """
-    try:
-        # Überprüfen, ob der Master läuft
-        if rosgraph.is_master_online():
-            print("ROS Master is already running.")
-        else:
-            print("No ROS Master detected. Starting roscore...")
-            # Starte `roscore` in einem neuen Prozess
-            subprocess.Popen(['roscore'])
-            # Warte, bis der Master verfügbar ist
-            time.sleep(5)  # Kurz warten, damit der Master vollständig gestartet ist
-    except Exception as e:
-        print(f"Failed to start roscore: {e}")
 
 

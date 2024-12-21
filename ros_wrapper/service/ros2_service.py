@@ -13,7 +13,7 @@ class ROS2Service(UnifiedService):
                     node (Node): The ROS 2 node instance.
                     name (str): The name of the service.
                     service_class (type): The type of the service.
-                    handler (callable): The handler function for the service.
+                    execute_cb (callable): The handler function for the service.
                 """
         self.__node = node
         self.__service = self.__node.create_service(service_class, name, execute_cb)

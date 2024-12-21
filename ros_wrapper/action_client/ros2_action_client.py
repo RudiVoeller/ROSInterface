@@ -28,8 +28,7 @@ class ROS2ActionClient(UnifiedActionClient):
         self.__future = None
         self.__client = ActionClient(node, action_type, action_name)
         self.__action_type = action_type
-        while not self.__client.wait_for_server(timeout_sec=1.0):
-            node.get_logger().info(f"Action-Client '{action_name}' in ROS 2 wartet auf den Server.")
+        self.__client.wait_for_server()
 
     def send_goal(self, goal):
 

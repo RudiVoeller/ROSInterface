@@ -23,7 +23,8 @@ class ROS2ActionServer(UnifiedActionServer):
                   action_type (type): The type of the action.
                   execute_cb (function): The callback function to execute when a goal is received.
               """
-        self.node = node
+        self._node = node
+        self._goal_handle = None
         self._user_callback = execute_callback  # Benutzerdefinierte execute_callback-Funktion
 
         if  inspect.iscoroutinefunction(execute_callback) is not True:
@@ -36,24 +37,25 @@ class ROS2ActionServer(UnifiedActionServer):
             )
 
 
-        self.node.get_logger().info(f"ROS 2 Action Server '{action_name}' gestartet.")
-
     def _execute_callback_wrapper(self, goal_handle):
+        self._goal_handle = goal_handle
         return self._user_callback(self, goal_handle)
 
     async def _execute_callback_wrapper_async(self, goal_handle):
+        self._goal_handle = goal_handle
         result = await self._user_callback(self, goal_handle)
         return result
 # TODO: Goal Handle in Konstruktor mit aufnehmen.
-    def publish_feedback(self, goal_handle, feedback):
+    def publish_feedback(self, feedback):
         """
           Sends feedback to client.
 
           feedback: Feedback-Message.
         """
-        goal_handle.publish_feedback(feedback)
+        if self._goal_handle:
+            self._goal_handle.publish_feedback(feedback)
 
-    def set_succeeded(self, goal_handle, result):
+    def set_succeeded(self, result):
         """
               Sets the action server state to succeeded.
 
@@ -61,10 +63,11 @@ class ROS2ActionServer(UnifiedActionServer):
                   goal_handle (GoalHandle): The goal handle.
                   result (Result): The result to send to the client.
               """
-        goal_handle.succeed()
-        return result
+        if self._goal_handle:
+            self._goal_handle.succeed()
+            return result
 
-    def set_aborted(self, goal_handle):
+    def set_aborted(self):
         """
               Sets the action server state to aborted.
 
@@ -72,22 +75,26 @@ class ROS2ActionServer(UnifiedActionServer):
                   goal_handle (GoalHandle): The goal handle.
                   result (Result): The result to send to the client.
               """
-        goal_handle.abort()
+        if self._goal_handle:
+            self._goal_handle.abort()
 
-    def is_preempt_requested(self, goal_handle):
+    def is_preempt_requested(self):
         """
               Checks if the action has been preempted.
 
               Returns:
                   True if a preemption has been requested.
                   """
-        return not goal_handle.is_active
+        if self._goal_handle:
+            return not self._goal_handle.is_active
+        return False
 
-    def set_preempted(self, goal_handle):
+    def set_preempted(self):
         """
            Sets the action server state to preempted.
 
            Args:
                goal_handle (GoalHandle): The goal handle.
            """
-        goal_handle.canceled()
+        if self._goal_handle:
+            self._goal_handle.canceled()
