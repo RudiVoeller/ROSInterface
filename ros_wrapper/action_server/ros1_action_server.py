@@ -57,7 +57,7 @@ class ROS1ActionServer(UnifiedActionServer):
              Args:
                  result (Result): The result to send to the client.
              """
-        self.__server.set_aborted(result)
+        self.__server.set_aborted()
 
     def is_preempt_requested(self):
         """

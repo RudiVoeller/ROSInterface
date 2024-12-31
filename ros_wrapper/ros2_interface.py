@@ -1,3 +1,5 @@
+import random
+import string
 from math import e
 
 import rclpy
@@ -19,8 +21,12 @@ def __is_node_initiialized(a_func):
     def wrapTheFunction():
 
         if not _node:
-            print("ROS2: ERROR: First init a node")
-            return None
+            print("ROS2: WARNING: No node initialized, Init node")
+            letters = string.ascii_letters + string.digits
+            name = ''.join(random.choice(letters) for i in range(10))
+            rclpy.init()
+            global _node
+            _node = Node(name)
 
         a_func()
 
@@ -222,8 +228,7 @@ def call_service(service_name, service_class, *args):
 
     client = _node.create_client(service_class, service_name)
 
-    while not client.wait_for_service(timeout_sec=1.0):
-        print(f"Service '{service_name}' not available, waiting...")
+    client.wait_for_service()
 
     request = service_class.Request()
     request_fields = [field for field in dir(request) if
