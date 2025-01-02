@@ -1,9 +1,9 @@
 import rospy
 
-from ros_wrapper.subscription.unified_subscription import UnifiedSubscription
+from ros_wrapper.subscription.unified_subscriber import UnifiedSubscriber
 
 
-class ROS1Publisher(UnifiedSubscription):
+class ROS1Publisher(UnifiedSubscriber):
     def __init__(self, topic, msg_type, queue_size=10):
         """
                 Initializes the ROS1Publisher with the given topic, message type, and queue size.

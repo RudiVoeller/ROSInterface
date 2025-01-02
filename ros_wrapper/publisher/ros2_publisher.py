@@ -1,9 +1,9 @@
 from rclpy.qos import QoSProfile
 
-from ros_wrapper.subscription.unified_subscription import UnifiedSubscription
+from ros_wrapper.subscription.unified_subscriber import UnifiedSubscriber
 
 
-class ROS2Publisher(UnifiedSubscription):
+class ROS2Publisher(UnifiedSubscriber):
     def __init__(self, node, topic, msg_type, qos_profile=QoSProfile(depth=10)):
         """
                 Publishes a message to the topic.

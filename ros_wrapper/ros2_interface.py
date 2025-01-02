@@ -11,7 +11,7 @@ from ros_wrapper.action_client.ros2_action_client import ROS2ActionClient
 from ros_wrapper.action_server.ros2_action_server import ROS2ActionServer
 from ros_wrapper.publisher.ros2_publisher import ROS2Publisher
 from ros_wrapper.service.ros2_service import ROS2Service
-from ros_wrapper.subscription.ros2_subscription import ROS2Subscription
+from ros_wrapper.subscription.ros2_subscriber import ROS2Subscriber
 
 
 _node = None
@@ -192,7 +192,7 @@ def create_subscriber(topic, msg_type, execute_cb):
     """
     print("ROS2: Creating Subscriber")
 
-    subscription = ROS2Subscription(_node, topic, msg_type, execute_cb)
+    subscription = ROS2Subscriber(_node, topic, msg_type, execute_cb)
     return subscription
 
 @__is_node_initiialized

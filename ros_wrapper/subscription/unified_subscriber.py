@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class UnifiedSubscription(ABC):
+class UnifiedSubscriber(ABC):
 
     @abstractmethod
     def unregister(self):

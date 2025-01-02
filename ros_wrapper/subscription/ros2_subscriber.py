@@ -1,8 +1,8 @@
 
-from ros_wrapper.subscription.unified_subscription import UnifiedSubscription
+from ros_wrapper.subscription.unified_subscriber import UnifiedSubscriber
 
 
-class ROS2Subscription(UnifiedSubscription):
+class ROS2Subscriber(UnifiedSubscriber):
     def __init__(self, node, topic, msg_type, callback):
         """
                 Initializes the ROS2Subscription with the given node, topic, message type, callback, and QoS profile.
