@@ -213,14 +213,14 @@ def create_service(name,service_class, execute_cb):
     return service
 
 @__is_node_initiialized
-def call_service(service_name, service_class, *args):
+def call_service(service_name, service_class, request):
     """
     Calls a service provided by another node.
 
     Args:
         service_name (str): Name of the service.
         service_class (type): Class of the service.
-        *args: Arguments for the service call.
+        request: Request object for the service.
 
     Returns:
         Response: Response from the service.
@@ -230,12 +230,12 @@ def call_service(service_name, service_class, *args):
 
     client.wait_for_service()
 
-    request = service_class.Request()
-    request_fields = [field for field in dir(request) if
-                      not field.startswith('_') and not field.startswith("SLOT_TYPES") and not callable(getattr(request, field))]
+    #request = service_class.Request()
+    #request_fields = [field for field in dir(request) if
+                      #not field.startswith('_') and not field.startswith("SLOT_TYPES") and not callable(getattr(request, field))]
 
-    for field, value in zip(request_fields, args):
-        setattr(request, field, value)
+    #for field, value in zip(request_fields, args):
+        #setattr(request, field, value)
 
     future = client.call_async(request)
     rclpy.spin_until_future_complete(_node, future)

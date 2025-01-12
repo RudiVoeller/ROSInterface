@@ -20,8 +20,6 @@ from .subscription.ros1_subscriber import ROS1Subscriber
 def __is_node_initiialized(a_func):
 
     def wrapTheFunction():
-
-
         if not rosgraph.is_master_online():
             print("ROS1: ERROR: First start roscore")
             return None
@@ -36,9 +34,7 @@ def __is_node_initiialized(a_func):
 
         a_func()
 
-
     return wrapTheFunction
-
 
 def init_node(name, anonymous=False):
     """
@@ -129,7 +125,6 @@ def subscriber_count_per_topic(topic_name):
             int: Number of subscriptions.
         """
 
-
     if not topic_name.startswith('/'):
         topic_name = '/' + topic_name
     try:
@@ -164,6 +159,7 @@ def subscriber_count_per_topic(topic_name):
 
 @__is_node_initiialized
 def publisher_count_per_topic(topic_name): # currently not working
+    
     """
     Counts the number of publishers for a topic.
 
@@ -173,7 +169,6 @@ def publisher_count_per_topic(topic_name): # currently not working
     Returns:
         int: Number of publishers.
     """
-
 
     if not topic_name.startswith('/'):
         topic_name = '/' + topic_name
@@ -224,6 +219,7 @@ def create_publisher(topic, msg_type):
 
 @__is_node_initiialized
 def create_subscriber(topic, msg_type, callback):
+
     """
     Creates a subscriber and returns it as a UnifiedSubscriber.
 
