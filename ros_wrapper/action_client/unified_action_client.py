@@ -12,7 +12,7 @@ class UnifiedActionClient(ABC):
      """
 
     @abstractmethod
-    def send_goal(self, goal):
+    def send_goal(self, goal, feedback_callback=None):
         """
                 Sends a goal to the appropriate action server based on the ROS version.
 

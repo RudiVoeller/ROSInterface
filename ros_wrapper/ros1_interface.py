@@ -19,12 +19,13 @@ from .subscription.ros1_subscriber import ROS1Subscriber
 
 def __is_node_initiialized(a_func):
 
-    def wrapTheFunction():
-        if not rosgraph.is_master_online():
-            print("ROS1: ERROR: First start roscore")
-            return None
-
+    def wrapTheFunction(*args, **kwargs):
         try:
+            if not rosgraph.is_master_online():
+                print("ROS1: ERROR: First start roscore")
+                return None
+
+
             rospy.get_node_uri()  # Prüft, ob der Node bereits initialisiert wurde
         except rospy.exceptions.ROSException:
             print("ROS1: WARNING: No node initialized, Init node")
@@ -32,7 +33,7 @@ def __is_node_initiialized(a_func):
             name =  ''.join(random.choice(letters) for i in range(10))
             rospy.init_node(name, anonymous=True)
 
-        a_func()
+        return  a_func(*args, **kwargs)
 
     return wrapTheFunction
 

@@ -30,7 +30,7 @@ class ROS2ActionClient(UnifiedActionClient):
         self.__action_type = action_type
         self.__client.wait_for_server()
 
-    def send_goal(self, goal):
+    def send_goal(self, goal, feedback_callback=None):
 
         """
                 Sends a goal to the action server.
@@ -45,7 +45,7 @@ class ROS2ActionClient(UnifiedActionClient):
         goal_msg = self.__action_type.Goal()
         goal_msg.order = goal
 
-        self.__future = self.__client.send_goal_async(goal_msg)
+        self.__future = self.__client.send_goal_async(goal_msg, feedback_callback=feedback_callback)
         rclpy.spin_until_future_complete(self.__client._node, self.__future)
         self.__goal_handle = self.__future.result()
 

@@ -24,7 +24,7 @@ if _ros_version == 'ros1':
         create_service, call_service, get_all_nodes, get_all_services, subscriber_count_per_topic, publisher_count_per_topic, get_all_topics, create_action_client, create_action_server
 elif _ros_version == 'ros2':
     from .ros2_interface import init_node, create_publisher, create_subscriber, set_param, get_param, delete_param, spin, \
-        create_service, call_service, get_all_nodes, get_all_services, subscription_count_per_topic, publisher_count_per_topic, get_all_topics, create_action_client, create_action_server
+        create_service, call_service, get_all_nodes, get_all_services, subscriber_count_per_topic, publisher_count_per_topic, get_all_topics, create_action_client, create_action_server
 
 """ Getter for the ros version """
 def ros_version():

@@ -1,6 +1,5 @@
 import random
 import string
-from math import e
 
 import rclpy
 from rclpy.node import Node
@@ -18,17 +17,16 @@ _node = None
 
 def __is_node_initiialized(a_func):
 
-    def wrapTheFunction():
-
+    def wrapTheFunction(*args, **kwargs):
+        global _node
         if not _node:
             print("ROS2: WARNING: No node initialized, Init node")
             letters = string.ascii_letters + string.digits
             name = ''.join(random.choice(letters) for i in range(10))
             rclpy.init()
-            global _node
             _node = Node(name)
 
-        a_func()
+        return a_func(*args, **kwargs)
 
 
     return wrapTheFunction
@@ -133,7 +131,7 @@ def delete_param(param_name):
     _node.undeclare_parameter(param_name)
 
 @__is_node_initiialized
-def subscription_count_per_topic(topic_name):
+def subscriber_count_per_topic(topic_name):
     """
     Counts the number of subscriptions for a topic.
 
@@ -230,13 +228,6 @@ def call_service(service_name, service_class, request):
 
     client.wait_for_service()
 
-    #request = service_class.Request()
-    #request_fields = [field for field in dir(request) if
-                      #not field.startswith('_') and not field.startswith("SLOT_TYPES") and not callable(getattr(request, field))]
-
-    #for field, value in zip(request_fields, args):
-        #setattr(request, field, value)
-
     future = client.call_async(request)
     rclpy.spin_until_future_complete(_node, future)
 
@@ -256,8 +247,8 @@ def get_all_nodes():
         list: List of node names.
     """
 
-    node_names_and_namespaces = _node.get_node_names_and_namespaces()
-    return [name for name, namespace in node_names_and_namespaces]
+    node_names = _node.get_node_names()
+    return node_names
 
 
 @__is_node_initiialized
@@ -280,7 +271,7 @@ def get_all_topics():
         list: List of topic names and types.
     """
 
-    return  [name for name , type in _node.get_topic_names_and_types()]
+    return  [name for name , type in _node.get_topic_names_and_types()] # Not
 
 @__is_node_initiialized
 def spin():
