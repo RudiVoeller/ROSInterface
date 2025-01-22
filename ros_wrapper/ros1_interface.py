@@ -14,19 +14,18 @@ from ros_wrapper.action_client.ros1_action_client import ROS1ActionClient
 from ros_wrapper.action_server.ros1_action_server import ROS1ActionServer
 from .publisher.ros1_publisher import ROS1Publisher
 from .service.ros1_service import ROS1Service
-from .subscription.ros1_subscription import ROS1Subscription
+from .subscription.ros1_subscriber import ROS1Subscriber
 
 
 def __is_node_initiialized(a_func):
 
-    def wrapTheFunction():
-
-
-        if not rosgraph.is_master_online():
-            print("ROS1: ERROR: First start roscore")
-            return None
-
+    def wrapTheFunction(*args, **kwargs):
         try:
+            if not rosgraph.is_master_online():
+                print("ROS1: ERROR: First start roscore")
+                return None
+
+
             rospy.get_node_uri()  # Prüft, ob der Node bereits initialisiert wurde
         except rospy.exceptions.ROSException:
             print("ROS1: WARNING: No node initialized, Init node")
@@ -34,11 +33,9 @@ def __is_node_initiialized(a_func):
             name =  ''.join(random.choice(letters) for i in range(10))
             rospy.init_node(name, anonymous=True)
 
-        a_func()
-
+        return  a_func(*args, **kwargs)
 
     return wrapTheFunction
-
 
 def init_node(name, anonymous=False):
     """
@@ -118,7 +115,7 @@ def delete_param(param_name):
     rospy.delete_param(param_name)
 
 @__is_node_initiialized
-def subscription_count_per_topic(topic_name):
+def subscriber_count_per_topic(topic_name):
     """
         Counts the number of subscriptions for a topic.
 
@@ -128,7 +125,6 @@ def subscription_count_per_topic(topic_name):
         Returns:
             int: Number of subscriptions.
         """
-
 
     if not topic_name.startswith('/'):
         topic_name = '/' + topic_name
@@ -159,11 +155,12 @@ def subscription_count_per_topic(topic_name):
         temp_publisher.unregister()
         return num_connections
     except Exception as e:
-        print(f"Failed to get subscription count for topic '{topic_name}'")
+        print(f"Failed to get subscriber count for topic '{topic_name}'")
         return None
 
 @__is_node_initiialized
 def publisher_count_per_topic(topic_name): # currently not working
+    
     """
     Counts the number of publishers for a topic.
 
@@ -173,7 +170,6 @@ def publisher_count_per_topic(topic_name): # currently not working
     Returns:
         int: Number of publishers.
     """
-
 
     if not topic_name.startswith('/'):
         topic_name = '/' + topic_name
@@ -224,6 +220,7 @@ def create_publisher(topic, msg_type):
 
 @__is_node_initiialized
 def create_subscriber(topic, msg_type, callback):
+
     """
     Creates a subscriber and returns it as a UnifiedSubscriber.
 
@@ -236,7 +233,7 @@ def create_subscriber(topic, msg_type, callback):
         UnifiedSubscription: The created subscription.
     """
 
-    subscription = ROS1Subscription(topic, msg_type, callback)
+    subscription = ROS1Subscriber(topic, msg_type, callback)
     return subscription
 
 @__is_node_initiialized

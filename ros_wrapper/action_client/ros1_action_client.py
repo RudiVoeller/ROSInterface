@@ -25,7 +25,7 @@ class ROS1ActionClient(UnifiedActionClient):
         self.__action_type = action_type
         self.__client.wait_for_server()
 
-    def send_goal(self, goal):
+    def send_goal(self, goal, feedback_callback=None):
         """
                 Sends a goal to the action server.
 
@@ -38,7 +38,7 @@ class ROS1ActionClient(UnifiedActionClient):
             return
        
 
-        self.__client.send_goal(goal)
+        self.__client.send_goal(goal, feedback_cb=feedback_callback)
         self.__client.wait_for_result()
 
 

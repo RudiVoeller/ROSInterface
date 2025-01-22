@@ -35,14 +35,14 @@ class TestROSPublisherSubscriber(unittest.TestCase):
     def test_subscriber_count(self):
         self.subscriber_proc.start()
         sleep(3)
-        self.assertEqual(ros.subscription_count_per_topic("test_topic"), 1, "Should have 1 subscriber")
+        self.assertEqual(ros.subscriber_count_per_topic("test_topic"), 1, "Should have 1 subscriber")
         self.publisher_proc.start()
         sleep(3)
-        self.assertEqual(ros.subscription_count_per_topic("test_topic"), 1, "Should have 1 subscriber")
+        self.assertEqual(ros.subscriber_count_per_topic("test_topic"), 1, "Should have 1 subscriber")
         self.subscriber_proc.terminate()
         self.subscriber_proc.join()
         sleep(3)
-        self.assertEqual(ros.subscription_count_per_topic("test_topic"), 0, "Should have 0 subscribers")
+        self.assertEqual(ros.subscriber_count_per_topic("test_topic"), 0, "Should have 0 subscribers")
 
 if __name__ == '__main__':
     unittest.main()
