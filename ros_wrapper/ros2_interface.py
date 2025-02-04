@@ -283,3 +283,9 @@ def spin():
     _node.destroy_node()
     rclpy.shutdown()
 
+def spin_once():
+    """
+    Spins the node once.
+    """
+
+    rclpy.spin_once(_node)

@@ -42,12 +42,10 @@ class ROS2ActionClient(UnifiedActionClient):
         if self.__action_type is None:
             print("Action type not set")
             return
-        goal_msg = self.__action_type.Goal()
-        goal_msg.order = goal
 
-        self.__future = self.__client.send_goal_async(goal_msg, feedback_callback=feedback_callback)
+        self.__future = self.__client.send_goal_async(goal, feedback_callback=feedback_callback)
         rclpy.spin_until_future_complete(self.__client._node, self.__future)
-        self.__goal_handle = self.__future.result()
+        #self.__goal_handle = self.__future.result()
 
 
     def get_result(self):
