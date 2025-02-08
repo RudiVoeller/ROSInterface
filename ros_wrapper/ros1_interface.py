@@ -319,5 +319,14 @@ def spin():
     """
     rospy.spin()
 
-
-
+def spin_once():
+    """
+    Spins the node once.
+    """
+    rospy.rostime.wallsleep(0.1)
+    
+def destroy_node():
+    """
+    Destroys the node.
+    """
+    rospy.signal_shutdown("Node destroyed")
