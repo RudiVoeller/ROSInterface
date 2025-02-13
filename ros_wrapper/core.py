@@ -5,11 +5,11 @@ global _ros_version
 """ Detects if ROS1 or ROS2 is sourced/activated """
 def _detect_ros_version():
     global _ros_version
-    ros_distro = os.getenv('ROS_DISTRO')
+    ros_distro = os.getenv('ROS_VERSION')
 
-    if ros_distro in ['noetic', 'melodic', 'kinetic', 'melodic', 'lunar', 'indigo', 'jade', 'hydro', 'groovy', 'fuerte', 'electric', 'diamondback', 'cturtle']:
+    if ros_distro == '1':
         _ros_version = 'ros1'
-    elif ros_distro in ['foxy', 'galactic', 'humble', 'jazzy', 'iron', 'eloquent', 'dashing', 'crystal', 'ardent', 'bouncy']:
+    elif ros_distro == '2':
         _ros_version = 'ros2'
     else:
         raise RuntimeError(

@@ -1,0 +1,9 @@
+<launch>
+    <!-- Starte den zu testenden Knoten -->
+    <node name="publisher_node" pkg="ros1_auto_tests" type="publisher_node.py" output="screen"/>
+    <node name="service_node" pkg="ros1_auto_tests" type="service_node.py" output="screen"/>
+
+
+    <!-- Führe den Test-Knoten aus -->
+    <test test-name="my_test" pkg="ros1_auto_tests" type="test_my_node.py" />
+</launch>
