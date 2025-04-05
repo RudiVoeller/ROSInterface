@@ -45,7 +45,7 @@ class ROS2ActionServer(UnifiedActionServer):
         self._goal_handle = goal_handle
         result = await self._user_callback(self, goal_handle)
         return result
-# TODO: Goal Handle in Konstruktor mit aufnehmen.
+
     def publish_feedback(self, feedback):
         """
           Sends feedback to client.
