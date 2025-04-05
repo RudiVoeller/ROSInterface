@@ -45,8 +45,6 @@ class ROS2ActionClient(UnifiedActionClient):
 
         self.__future = self.__client.send_goal_async(goal, feedback_callback=feedback_callback)
         rclpy.spin_until_future_complete(self.__client._node, self.__future)
-        #self.__goal_handle = self.__future.result()
-
 
     def get_result(self):
 
